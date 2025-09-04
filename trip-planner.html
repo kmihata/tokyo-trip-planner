@@ -1,0 +1,3718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Planner</title>
+    <link rel="icon" href="data:,">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            margin-bottom: 0.5rem;
+        }
+        
+        .trip-overview {
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+            margin: 0.5rem 0;
+        }
+        
+        .trip-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+        
+        .trip-title:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .trip-title.editing {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .trip-title-input {
+            background: rgba(255, 255, 255, 0.9);
+            color: #2c3e50;
+            border: 2px solid #3498db;
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            font-size: 1.4rem;
+            font-weight: bold;
+            text-align: center;
+            min-width: 200px;
+        }
+        
+        .trip-summary {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+        
+        @media (max-width: 768px) {
+            .trip-overview {
+                padding: 0.75rem 1rem;
+            }
+            
+            .trip-title {
+                font-size: 1.2rem;
+            }
+            
+            .trip-summary {
+                font-size: 0.875rem;
+            }
+        }
+
+        .view-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .btn.active {
+            background: #e74c3c;
+        }
+
+        .btn.active:hover {
+            background: #c0392b;
+        }
+
+        .controls {
+            background: white;
+            padding: 1rem;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        /* Hamburger Menu Styles */
+        .menu-container {
+            position: relative;
+        }
+        
+        .hamburger-menu {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .hamburger-menu:hover {
+            background: #2980b9;
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1001;
+            min-width: 250px;
+            display: none;
+        }
+        
+        .dropdown-menu.show {
+            display: block;
+        }
+        
+        .menu-section {
+            padding: 0.5rem 0;
+        }
+        
+        .menu-section:not(:last-child) {
+            border-bottom: 1px solid #eee;
+        }
+        
+        .menu-section-title {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: bold;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .menu-item {
+            display: block;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: none;
+            background: none;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-size: 0.9rem;
+            color: #333;
+        }
+        
+        .menu-item:hover {
+            background-color: #f8f9fa;
+        }
+        
+        @media (max-width: 768px) {
+            .controls {
+                padding: 0.75rem;
+                gap: 0.5rem;
+            }
+            
+            .dropdown-menu {
+                min-width: 200px;
+            }
+        }
+
+        .view {
+            display: none;
+            padding-bottom: 2rem;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        /* Map View Styles */
+        .map-container {
+            position: relative;
+            height: 65vh;
+            min-height: 400px;
+            margin-bottom: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .map-container {
+                height: 50vh;
+                min-height: 300px;
+                margin-bottom: 1rem;
+            }
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .timeline-control {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 1000;
+            min-width: 320px;
+            max-width: 90vw;
+        }
+        
+        @media (max-width: 768px) {
+            .timeline-control {
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                transform: none;
+                max-width: none;
+                min-width: auto;
+                padding: 0.75rem 1rem;
+            }
+        }
+
+        .timeline-control label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: bold;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .day-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            justify-content: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .day-btn {
+            min-width: 32px;
+            height: 32px;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+            color: #666;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .day-btn:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        .day-btn.current {
+            background: #3498db;
+            color: white;
+            border-color: #2980b9;
+            box-shadow: 0 2px 4px rgba(52, 152, 219, 0.3);
+        }
+
+        .day-btn.past {
+            background: #95a5a6;
+            color: white;
+            border-color: #7f8c8d;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 4px;
+            background: #ecf0f1;
+            border-radius: 2px;
+            margin: 0 0.75rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        .day-info {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Itinerary View Styles */
+        .itinerary-container {
+            background: white;
+            margin: 1rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .itinerary-day {
+            border-bottom: 1px solid #eee;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .itinerary-day:last-child {
+            border-bottom: none;
+        }
+
+        .itinerary-day.past {
+            opacity: 0.6;
+            background-color: #f8f9fa;
+        }
+
+        .itinerary-day.current {
+            background-color: #e8f4f8;
+            border-left: 4px solid #3498db;
+        }
+
+        .day-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .insert-day-btn {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+        }
+
+        .itinerary-day:hover .insert-day-btn {
+            display: block;
+        }
+
+        .insert-day-btn:hover {
+            background: #2ecc71;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .delete-day-btn {
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
+        }
+
+        .itinerary-day:hover .delete-day-btn {
+            display: block;
+        }
+
+        .delete-day-btn:hover {
+            background: #c0392b;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .day-number {
+            background: #3498db;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+
+        .day-date {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .day-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .detail-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: #7f8c8d;
+            margin-bottom: 0.25rem;
+            font-weight: 600;
+        }
+
+        .detail-value {
+            font-size: 1rem;
+            color: #2c3e50;
+            min-height: 1.5rem;
+            padding: 0.25rem 0;
+        }
+
+        .detail-value input,
+        .detail-value textarea {
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 0.5rem;
+            font-family: inherit;
+            font-size: inherit;
+        }
+
+        .detail-value textarea {
+            resize: vertical;
+            min-height: 3rem;
+        }
+
+        .edit-controls {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+        }
+
+        .edit-controls .btn {
+            margin: 0 0.5rem;
+        }
+
+        .status-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 10000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .status-message.show {
+            transform: translateX(0);
+        }
+
+        .status-message.error {
+            background: #e74c3c;
+        }
+
+        .file-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* City Details View Styles */
+        .cities-container {
+            background: white;
+            margin: 1rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .cities-controls {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cities-controls .btn {
+            margin: 0 0.5rem;
+        }
+
+        .city-section {
+            border-bottom: 1px solid #eee;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .city-section:last-child {
+            border-bottom: none;
+        }
+
+        .city-section.past {
+            opacity: 0.6;
+            background-color: #f8f9fa;
+        }
+
+        .city-section.current {
+            background-color: #e8f4f8;
+            border-left: 4px solid #3498db;
+        }
+
+        .city-section.past .city-days::after {
+            content: " (Completed)";
+            color: #7f8c8d;
+            font-size: 0.8rem;
+        }
+
+        .city-section.current .city-days::after {
+            content: " (Current)";
+            color: #3498db;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .city-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .city-icon {
+            background: #3498db;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        .city-title {
+            flex: 1;
+        }
+
+        .city-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .city-days {
+            font-size: 1rem;
+            color: #7f8c8d;
+            margin: 0.25rem 0 0 0;
+        }
+
+        .city-hotel {
+            font-size: 0.9rem;
+            color: #3498db;
+            margin: 0.25rem 0 0 0;
+        }
+
+        .city-hotel a {
+            color: #3498db;
+            text-decoration: none;
+        }
+
+        .city-hotel a:hover {
+            text-decoration: underline;
+        }
+
+        .city-hotel input {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            margin: 0 0.25rem;
+            font-size: 0.85rem;
+        }
+
+        .city-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .info-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .info-section h4 {
+            margin: 0 0 1rem 0;
+            color: #2c3e50;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-content {
+            min-height: 100px;
+        }
+
+        .info-content textarea {
+            width: 100%;
+            min-height: 100px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 0.75rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+            resize: vertical;
+        }
+
+        .info-content.display {
+            white-space: pre-wrap;
+            line-height: 1.5;
+            color: #555;
+        }
+
+        .todo-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+            padding: 0.5rem;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+        }
+
+        .todo-checkbox {
+            margin-top: 0.25rem;
+        }
+
+        .todo-text {
+            flex: 1;
+            min-height: 1.5rem;
+        }
+
+        .todo-text input {
+            width: 100%;
+            border: none;
+            background: transparent;
+            font-size: inherit;
+            padding: 0;
+        }
+
+        .todo-text input:focus {
+            outline: 1px solid #3498db;
+            background: white;
+            padding: 0.25rem;
+            border-radius: 2px;
+        }
+
+        .todo-remove {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            margin-top: 0.1rem;
+        }
+
+        .add-todo {
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .links-section {
+            background: #e8f4f8;
+        }
+
+        .link-item {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            align-items: center;
+        }
+
+        .link-item input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .link-item a {
+            color: #3498db;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .link-item a:hover {
+            text-decoration: underline;
+        }
+
+        /* Print Styles */
+        @media print {
+            .header, .controls, .view-toggle {
+                display: none !important;
+            }
+            
+            .itinerary-container {
+                box-shadow: none;
+                margin: 0;
+            }
+            
+            .view {
+                display: block !important;
+            }
+            
+            #map-view {
+                display: none !important;
+            }
+            
+            .day-details {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .itinerary-day {
+                page-break-inside: avoid;
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .timeline-control {
+                min-width: 280px;
+                padding: 0.75rem 1rem;
+                max-width: 95vw;
+            }
+            
+            .day-btn {
+                min-width: 28px;
+                height: 28px;
+                font-size: 0.8rem;
+            }
+            
+            .day-buttons {
+                gap: 3px;
+            }
+            
+            .day-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .file-controls {
+                flex-direction: column;
+                width: 100%;
+            }
+        }
+        
+        /* Universal Control Line */
+        .universal-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: white;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .controls-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .controls-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .controls-right {
+            display: flex;
+            align-items: center;
+        }
+        
+        .universal-controls .view-toggle {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .universal-controls .trip-overview {
+            background: none;
+            color: #333;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .universal-controls .trip-title {
+            color: #2c3e50;
+            font-size: 1.2rem;
+        }
+        
+        /* Dashboard View Styles */
+        .dashboard-container {
+            display: flex;
+            height: calc(100vh - 60px); /* Adjusted for single control line */
+            gap: 1rem;
+            padding: 1rem;
+            background: #f5f5f5;
+        }
+        
+        .dashboard-left {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .dashboard-right {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow-y: auto;
+        }
+        
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .dashboard-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        .dashboard-dates {
+            font-size: 1rem;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .location-indicator {
+            background: #3498db;
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .dashboard-map-container {
+            flex: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #ddd;
+            min-height: 300px;
+            position: relative;
+        }
+        
+        #dashboard-map {
+            height: 100%;
+            width: 100%;
+        }
+        
+        /* Vertical timeline overlay */
+        .vertical-timeline-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-height: calc(100% - 20px);
+            overflow-y: auto;
+        }
+        
+        .timeline-day {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid #ddd;
+            background: white;
+            font-weight: bold;
+            font-size: 14px;
+            color: #2c3e50;
+            text-align: center;
+            line-height: 40px;
+            box-sizing: border-box;
+            user-select: none;
+        }
+        
+        .timeline-day:hover {
+            border-color: #3498db;
+            background: #f8f9fa;
+        }
+        
+        .timeline-day.active {
+            background: #e74c3c;
+            color: white;
+            border-color: #c0392b;
+            animation: pulse 2s infinite;
+        }
+        
+        .dashboard-itinerary h3 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            font-size: 1.4rem;
+        }
+        
+        .day-item {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+        
+        .day-item:hover {
+            border-color: #3498db;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.1);
+        }
+        
+        .day-header {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s ease;
+        }
+        
+        .day-header:hover {
+            background: #e9ecef;
+        }
+        
+        .day-header.active {
+            background: #3498db;
+            color: white;
+        }
+        
+        .day-number {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .day-location {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .day-expand-icon {
+            font-size: 1.2rem;
+            transition: transform 0.2s ease;
+        }
+        
+        .day-header.expanded .day-expand-icon {
+            transform: rotate(180deg);
+        }
+        
+        .day-summary {
+            padding: 1rem;
+            background: white;
+            display: none;
+            border-top: 1px solid #eee;
+        }
+        
+        .day-summary.show {
+            display: block;
+            animation: slideDown 0.2s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                max-height: 0;
+            }
+            to {
+                opacity: 1;
+                max-height: 200px;
+            }
+        }
+        
+        .summary-item {
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .summary-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        /* Dashboard Map Marker Styles */
+        .day-marker,
+        .current-day-marker {
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            color: #2c3e50;
+        }
+        
+        .current-day-marker {
+            background: #e74c3c;
+            border-color: #c0392b;
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        .marker-content {
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .marker-content.current {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .universal-controls {
+                flex-direction: column;
+                gap: 0.75rem;
+                padding: 1rem;
+            }
+            
+            .controls-left,
+            .controls-center,
+            .controls-right {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .universal-controls .view-toggle {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+        
+        @media (max-width: 1024px) {
+            .dashboard-container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .dashboard-left,
+            .dashboard-right {
+                flex: none;
+            }
+            
+            .dashboard-map-container {
+                min-height: 250px;
+            }
+            
+            .vertical-timeline-overlay {
+                right: 5px;
+                top: 5px;
+                padding: 0.25rem;
+            }
+            
+            .timeline-day {
+                width: 35px;
+                height: 35px;
+                font-size: 12px;
+                text-align: center;
+                line-height: 35px;
+                box-sizing: border-box;
+            }
+        }
+        
+        /* Status message styling */
+        .status-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 9999;
+            max-width: calc(100vw - 40px);
+            word-wrap: break-word;
+            font-size: 0.9rem;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+        
+        .status-message.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .status-message.error {
+            background: #e74c3c;
+        }
+        
+        @media (max-width: 768px) {
+            .status-message {
+                right: 10px;
+                left: 10px;
+                max-width: none;
+                text-align: center;
+            }
+        }
+    </style>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <!-- Universal control line for all views -->
+    <div class="universal-controls">
+        <div class="controls-left">
+            <div class="menu-container">
+                <button class="hamburger-menu" onclick="toggleMenu()">
+                    ☰ Menu
+                </button>
+                <div class="dropdown-menu" id="dropdown-menu">
+                    <div class="menu-section">
+                        <div class="menu-section-title">📁 File Operations</div>
+                        <button class="menu-item" onclick="document.getElementById('file-input').click(); toggleMenu()">📁 Upload Itinerary</button>
+                        <button class="menu-item" onclick="document.getElementById('city-file-input').click(); toggleMenu()">🏙️ Upload City Details</button>
+                        <button class="menu-item" onclick="downloadItinerary(); toggleMenu()">💾 Download Itinerary</button>
+                        <button class="menu-item" onclick="downloadCityDetails(); toggleMenu()">💾 Download Cities</button>
+                    </div>
+                    <div class="menu-section">
+                        <div class="menu-section-title">🔧 Data Tools</div>
+                        <button class="menu-item" onclick="resetToSample(); toggleMenu()">🔄 Reset to Sample</button>
+                        <button class="menu-item" onclick="fixAllDates(); toggleMenu()">📅 Fix Dates</button>
+                        <button class="menu-item" onclick="clearAllCoordinates(); toggleMenu()">📍 Clear Coordinates</button>
+                        <button class="menu-item" onclick="showCoordinateLookup(); toggleMenu()">🔍 Lookup Coordinates</button>
+                    </div>
+                    <div class="menu-section">
+                        <div class="menu-section-title">🎨 Display Options</div>
+                        <button class="menu-item" id="toggle-routes-menu" onclick="toggleRoutes(); toggleMenu()">🗺️ Hide Routes</button>
+                        <button class="menu-item" onclick="window.print(); toggleMenu()">🖨️ Print</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls-center" id="controls-center">
+            <!-- Trip info for non-dashboard views -->
+            <div class="trip-overview" id="trip-overview-header" style="display: none;">
+                <div class="trip-title" id="trip-title" onclick="editTripTitle()" title="Click to edit">
+                    My Trip
+                </div>
+                <div class="trip-summary" id="trip-summary">
+                    Loading trip details...
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls-right">
+            <div class="view-toggle">
+                <button class="btn btn-primary active" onclick="switchView('dashboard')">🏠 Dashboard</button>
+                <button class="btn btn-secondary" onclick="switchView('map')">📍 Map View</button>
+                <button class="btn btn-secondary" onclick="switchView('itinerary')">📋 Itinerary View</button>
+                <button class="btn btn-secondary" onclick="switchView('cities')">🏙️ City Details</button>
+            </div>
+        </div>
+        
+        <!-- Hidden file inputs -->
+        <input type="file" id="file-input" class="file-input" accept=".json" onchange="uploadFile(event)" style="display: none;">
+        <input type="file" id="city-file-input" class="file-input" accept=".json" onchange="uploadCityFile(event)" style="display: none;">
+    </div>
+
+    <!-- Dashboard View -->
+    <div id="dashboard-view" class="view active">
+        <div class="dashboard-container">
+            <div class="dashboard-left">
+                <div class="dashboard-header">
+                    <div class="dashboard-title" id="dashboard-title" onclick="editTripTitle()">My Trip</div>
+                    <div class="dashboard-dates" id="dashboard-dates">Loading dates...</div>
+                </div>
+                <div class="location-indicator" id="location-indicator">Current Location: Loading...</div>
+                <div class="dashboard-map-container">
+                    <div id="dashboard-map"></div>
+                    <div class="vertical-timeline-overlay" id="vertical-timeline">
+                        <!-- Vertical number timeline overlaid on map -->
+                    </div>
+                </div>
+            </div>
+            <div class="dashboard-right">
+                <div class="dashboard-itinerary">
+                    <h3>Trip Overview</h3>
+                    <div class="day-list" id="day-list">
+                        <!-- Day summaries will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Map View -->
+    <div id="map-view" class="view">
+        <div class="map-container">
+            <div id="map"></div>
+            <div class="timeline-control">
+                <label>Trip Progress:</label>
+                <div class="progress-info">
+                    <span id="progress-text">Day 1 of 16</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                    <span id="days-remaining">15 days left</span>
+                </div>
+                <div class="day-buttons" id="day-buttons"></div>
+                <div class="day-info" id="day-info">Day 1: In Transit (Seattle → Seoul)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Itinerary View -->
+    <div id="itinerary-view" class="view">
+        <div class="itinerary-container">
+            <div class="edit-controls">
+                <button class="btn btn-primary" id="edit-btn" onclick="toggleEdit()">✏️ Edit Itinerary</button>
+                <button class="btn btn-primary" id="save-btn" style="display: none;" onclick="saveItinerary()">💾 Save Changes</button>
+                <button class="btn btn-secondary" id="cancel-btn" style="display: none;" onclick="cancelEdit()">❌ Cancel</button>
+                <button class="btn btn-secondary" id="add-day-btn" style="display: none;" onclick="addDay()">➕ Add Day</button>
+            </div>
+            <div id="itinerary-content"></div>
+        </div>
+    </div>
+
+    <!-- City Details View -->
+    <div id="cities-view" class="view">
+        <div class="cities-container">
+            <div class="cities-controls">
+                <div style="display: flex; gap: 1rem; align-items: center; justify-content: center; flex-wrap: wrap;">
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <label style="font-size: 0.9rem; color: #666;">Group by:</label>
+                        <button class="btn btn-secondary" id="lodging-view-btn" onclick="switchCityGrouping('lodging')">🏨 Base Cities</button>
+                        <button class="btn btn-secondary" id="location-view-btn" onclick="switchCityGrouping('location')">📍 Daily Locations</button>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn btn-primary" id="edit-cities-btn" onclick="toggleCityEdit()">✏️ Edit City Details</button>
+                        <button class="btn btn-primary" id="save-cities-btn" style="display: none;" onclick="saveCityDetails()">💾 Save Changes</button>
+                        <button class="btn btn-secondary" id="cancel-cities-btn" style="display: none;" onclick="cancelCityEdit()">❌ Cancel</button>
+                    </div>
+                </div>
+            </div>
+            <div id="cities-content"></div>
+        </div>
+    </div>
+
+    <div id="status-message" class="status-message"></div>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Global variables
+        let itineraryData = [];
+        let cityDetails = {};
+        let map;
+        let markers = [];
+        let paths = [];
+        let tripTitle = localStorage.getItem('tripTitle') || 'My Trip';
+        
+        // Dashboard specific variables
+        let dashboardMap;
+        let dashboardMarkers = [];
+        let dashboardPaths = [];
+        let currentDashboardDay = 0;
+        
+        // Menu functionality
+        function toggleMenu() {
+            const menu = document.getElementById('dropdown-menu');
+            menu.classList.toggle('show');
+        }
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menuContainer = document.querySelector('.menu-container');
+            const menu = document.getElementById('dropdown-menu');
+            
+            if (!menuContainer.contains(event.target)) {
+                menu.classList.remove('show');
+            }
+        });
+
+        // Trip title editing functionality
+        function editTripTitle() {
+            // Check if we're in dashboard view or other view
+            const dashboardTitle = document.getElementById('dashboard-title');
+            const regularTitle = document.getElementById('trip-title');
+            const titleElement = dashboardTitle && dashboardTitle.offsetParent ? dashboardTitle : regularTitle;
+            
+            if (!titleElement) return;
+            
+            const currentTitle = titleElement.textContent;
+            
+            titleElement.classList.add('editing');
+            titleElement.innerHTML = `<input type="text" class="trip-title-input" value="${currentTitle}" onblur="saveTripTitle()" onkeypress="handleTitleKeypress(event)">`;
+            
+            const input = titleElement.querySelector('.trip-title-input');
+            input.focus();
+            input.select();
+        }
+        
+        function handleTitleKeypress(event) {
+            if (event.key === 'Enter') {
+                event.target.blur();
+            }
+        }
+        
+        function saveTripTitle() {
+            // Update both title elements if they exist
+            const dashboardTitle = document.getElementById('dashboard-title');
+            const regularTitle = document.getElementById('trip-title');
+            const activeElement = dashboardTitle && dashboardTitle.classList.contains('editing') ? dashboardTitle : regularTitle;
+            
+            if (!activeElement) return;
+            
+            const input = activeElement.querySelector('.trip-title-input');
+            const newTitle = input.value.trim() || 'My Trip';
+            
+            tripTitle = newTitle;
+            localStorage.setItem('tripTitle', tripTitle);
+            
+            // Update both elements
+            if (dashboardTitle) {
+                dashboardTitle.classList.remove('editing');
+                dashboardTitle.textContent = tripTitle;
+            }
+            if (regularTitle) {
+                regularTitle.classList.remove('editing');
+                regularTitle.textContent = tripTitle;
+            }
+        }
+        
+        // Generate trip summary
+        function generateTripSummary() {
+            if (!itineraryData.length) {
+                return 'No trip data available';
+            }
+            
+            const startDate = itineraryData[0].date;
+            const endDate = itineraryData[itineraryData.length - 1].date;
+            const duration = itineraryData.length;
+            
+            // Get unique locations
+            const locations = [...new Set(itineraryData
+                .filter(day => day.location && day.location.trim())
+                .map(day => day.location.split(',')[0].trim())
+            )];
+            
+            const locationSummary = locations.length > 3 
+                ? `${locations.slice(0, 3).join(', ')} and ${locations.length - 3} more`
+                : locations.join(', ');
+            
+            let summary = `${duration} day${duration === 1 ? '' : 's'}`;
+            if (startDate && endDate && startDate !== endDate) {
+                summary += ` • ${formatDateRange(startDate, endDate)}`;
+            }
+            if (locationSummary) {
+                summary += ` • ${locationSummary}`;
+            }
+            
+            return summary;
+        }
+        
+        function formatDateRange(startDate, endDate) {
+            let start = new Date(startDate);
+            let end = new Date(endDate);
+            
+            // If year is missing or defaulted to a past year, assume current year (2025)
+            const currentYear = 2025;
+            if (start.getFullYear() < currentYear && (startDate.indexOf(currentYear.toString()) === -1)) {
+                start.setFullYear(currentYear);
+            }
+            if (end.getFullYear() < currentYear && (endDate.indexOf(currentYear.toString()) === -1)) {
+                end.setFullYear(currentYear);
+            }
+            
+            const options = { month: 'short', day: 'numeric' };
+            
+            if (start.getFullYear() === end.getFullYear()) {
+                return `${start.toLocaleDateString('en-US', options)} - ${end.toLocaleDateString('en-US', options)}, ${start.getFullYear()}`;
+            } else {
+                return `${start.toLocaleDateString('en-US', { ...options, year: 'numeric' })} - ${end.toLocaleDateString('en-US', { ...options, year: 'numeric' })}`;
+            }
+        }
+        
+        // Generate automatic trip title from itinerary data
+        function generateAutoTitle() {
+            if (!itineraryData.length) {
+                return 'My Trip';
+            }
+            
+            // Get unique locations (just city names, not full addresses)
+            const locations = [...new Set(itineraryData
+                .filter(day => day.location && day.location.trim())
+                .map(day => day.location.split(',')[0].trim())
+            )];
+            
+            // Get year from dates if available
+            let year = '';
+            const firstDate = itineraryData[0].date;
+            if (firstDate) {
+                const dateMatch = firstDate.match(/\b(20\d{2})\b/);
+                if (dateMatch) {
+                    year = ` ${dateMatch[1]}`;
+                } else {
+                    // Default to current year if no year found in dates
+                    year = ' 2025';
+                }
+            }
+            
+            // Create title based on locations
+            if (locations.length === 0) {
+                return `Trip${year}`;
+            } else if (locations.length === 1) {
+                return `${locations[0]}${year}`;
+            } else if (locations.length === 2) {
+                return `${locations[0]} & ${locations[1]}${year}`;
+            } else if (locations.length <= 4) {
+                return `${locations.join(', ')}${year}`;
+            } else {
+                // For many locations, use first location + region/country pattern
+                const firstLocation = locations[0];
+                const duration = itineraryData.length;
+                return `${firstLocation} Trip (${duration} days)${year}`;
+            }
+        }
+
+        // Update trip overview
+        function updateTripOverview() {
+            document.getElementById('trip-title').textContent = tripTitle;
+            document.getElementById('trip-summary').textContent = generateTripSummary();
+        }
+        let isEditMode = false;
+        let isCityEditMode = false;
+        let originalData = [];
+        let originalCityData = {};
+        let showRoutes = true;
+        let currentCityGrouping = 'auto'; // 'auto', 'lodging', or 'location'
+
+        // Sample data (from your tokyo 2025.json)
+        const sampleData = [
+            {
+                "day": 1,
+                "date": "Thu, Nov 13",
+                "title": "In Transit (Seattle → Seoul)",
+                "location": "Seattle, USA",
+                "coords": [47.6062, -122.3321],
+                "transport": "FLIGHT: Seattle to Seoul",
+                "lodging": "",
+                "notes": "",
+                "path": [[47.6062, -122.3321], [55, -150], [60, -170], [55, -210], [37.5665, -233.022]]
+            },
+            {
+                "day": 2,
+                "date": "Fri, Nov 14",
+                "title": "Arrive Seoul",
+                "location": "Seoul, South Korea",
+                "coords": [37.5665, 126.9780],
+                "transport": "Arrive at Incheon International Airport (ICN)",
+                "lodging": "",
+                "notes": "Half day in Seoul"
+            },
+            {
+                "day": 3,
+                "date": "Sat, Nov 15",
+                "title": "Full day in Seoul",
+                "location": "Seoul, South Korea",
+                "coords": [37.5665, 126.9780],
+                "transport": "Local transit",
+                "lodging": "",
+                "notes": "Full day exploring Seoul"
+            },
+            {
+                "day": 4,
+                "date": "Sun, Nov 16",
+                "title": "Fly to Osaka",
+                "location": "Osaka, Japan",
+                "coords": [34.6937, 135.5023],
+                "transport": "FLIGHT: Seoul to Osaka",
+                "lodging": "",
+                "notes": "",
+                "path": [[37.5665, 126.9780], [34.6937, 135.5023]]
+            },
+            {
+                "day": 5,
+                "date": "Mon, Nov 17",
+                "title": "Osaka / Nara",
+                "location": "Osaka / Nara",
+                "coords": [34.6937, 135.5023],
+                "transport": "Local train",
+                "lodging": "",
+                "notes": "Art island day or overnight?"
+            },
+            {
+                "day": 6,
+                "date": "Tue, Nov 18",
+                "title": "Kyoto (day trip)",
+                "location": "Kyoto, Japan",
+                "coords": [35.0116, 135.7681],
+                "transport": "Local train from Osaka",
+                "lodging": "Return to Osaka",
+                "notes": "Day trip to Kyoto",
+                "path": [[34.6937, 135.5023], [35.0116, 135.7681]]
+            },
+            {
+                "day": 7,
+                "date": "Wed, Nov 19",
+                "title": "Explore Osaka",
+                "location": "Osaka, Japan",
+                "coords": [34.6937, 135.5023],
+                "transport": "Local transit",
+                "lodging": "",
+                "notes": ""
+            },
+            {
+                "day": 8,
+                "date": "Thu, Nov 20",
+                "title": "Travel to Kanazawa",
+                "location": "Kanazawa, Japan",
+                "coords": [36.5613, 136.6562],
+                "transport": "TRAIN: Osaka to Kanazawa",
+                "lodging": "",
+                "notes": "",
+                "path": [[34.6937, 135.5023], [36.5613, 136.6562]]
+            },
+            {
+                "day": 9,
+                "date": "Fri, Nov 21",
+                "title": "Explore Kanazawa",
+                "location": "Kanazawa, Japan",
+                "coords": [36.5613, 136.6562],
+                "transport": "Local transit",
+                "lodging": "",
+                "notes": ""
+            },
+            {
+                "day": 10,
+                "date": "Sat, Nov 22",
+                "title": "Travel to Yudanaka (Nagano)",
+                "location": "Yudanaka, Nagano",
+                "coords": [36.7383, 138.4116],
+                "transport": "TRAIN: Kanazawa to Nagano/Yudanaka",
+                "lodging": "",
+                "notes": "Visit snow monkeys.",
+                "path": [[36.5613, 136.6562], [36.7383, 138.4116]]
+            },
+            {
+                "day": 11,
+                "date": "Sun, Nov 23",
+                "title": "Travel to Tokyo",
+                "location": "Tokyo, Japan",
+                "coords": [35.6895, 139.6917],
+                "transport": "TRAIN: Nagano to Tokyo",
+                "lodging": "",
+                "notes": "",
+                "path": [[36.7383, 138.4116], [35.6895, 139.6917]]
+            },
+            {
+                "day": 12,
+                "date": "Mon, Nov 24",
+                "title": "Explore Tokyo",
+                "location": "Tokyo, Japan",
+                "coords": [35.6895, 139.6917],
+                "transport": "Local transit",
+                "lodging": "",
+                "notes": ""
+            },
+            {
+                "day": 13,
+                "date": "Tue, Nov 25",
+                "title": "Explore Tokyo",
+                "location": "Tokyo, Japan",
+                "coords": [35.6895, 139.6917],
+                "transport": "Local transit",
+                "lodging": "",
+                "notes": ""
+            },
+            {
+                "day": 14,
+                "date": "Wed, Nov 26",
+                "title": "Tokyo / Day Trip",
+                "location": "Tokyo, Japan",
+                "coords": [35.6895, 139.6917],
+                "transport": "Local transit",
+                "lodging": "",
+                "notes": "Possible day trip (e.g., to Hakone or Nikko)"
+            },
+            {
+                "day": 15,
+                "date": "Thu, Nov 27",
+                "title": "Tokyo (Thanksgiving)",
+                "location": "Tokyo, Japan",
+                "coords": [35.6895, 139.6917],
+                "transport": "Local transit",
+                "lodging": "",
+                "notes": ""
+            },
+            {
+                "day": 16,
+                "date": "Fri, Nov 28",
+                "title": "Fly Home (Tokyo → Seattle)",
+                "location": "Tokyo, Japan",
+                "coords": [35.6895, 139.6917],
+                "transport": "FLIGHT: Tokyo to Seattle",
+                "lodging": "",
+                "notes": "",
+                "path": [[35.6895, -220.083], [55, -210], [60, -170], [55, -150], [47.6062, -122.3321]]
+            }
+        ];
+
+        // Sample city details data
+        const sampleCityDetails = {
+            "Seoul": {
+                icon: "🏙️",
+                days: "Days 2-3",
+                hotel: "",
+                hotelUrl: "",
+                activities: [
+                    { text: "Visit Gyeongbokgung Palace", completed: false },
+                    { text: "Explore Hongdae nightlife", completed: false },
+                    { text: "Try Korean BBQ", completed: false }
+                ],
+                otherNotes: "Consider visiting Bukchon Hanok Village if time permits",
+                links: [
+                    { title: "", url: "" }
+                ],
+                whosThere: ""
+            },
+            "Osaka": {
+                icon: "🏯",
+                days: "Days 4-5, 7",
+                hotel: "",
+                hotelUrl: "",
+                activities: [
+                    { text: "Visit Osaka Castle", completed: false },
+                    { text: "Explore Dotonbori district", completed: false },
+                    { text: "Try takoyaki and okonomiyaki", completed: false }
+                ],
+                otherNotes: "Art island day trip - research Naoshima ferries",
+                links: [
+                    { title: "", url: "" }
+                ],
+                whosThere: ""
+            },
+            "Kyoto": {
+                icon: "⛩️",
+                days: "Day 6",
+                hotel: "Day trip from Osaka",
+                hotelUrl: "",
+                activities: [
+                    { text: "Visit Fushimi Inari Shrine", completed: false },
+                    { text: "Explore Arashiyama Bamboo Grove", completed: false },
+                    { text: "Traditional kaiseki dinner", completed: false }
+                ],
+                otherNotes: "Check train times - last train back to Osaka",
+                links: [
+                    { title: "", url: "" }
+                ],
+                whosThere: ""
+            },
+            "Kanazawa": {
+                icon: "🌸",
+                days: "Days 8-9",
+                hotel: "",
+                hotelUrl: "",
+                activities: [
+                    { text: "Visit Kenroku-en Garden", completed: false },
+                    { text: "Explore Higashi Chaya District", completed: false },
+                    { text: "Try fresh seafood at Omicho Market", completed: false }
+                ],
+                otherNotes: "Famous for gold leaf crafts - maybe buy souvenirs",
+                links: [
+                    { title: "", url: "" }
+                ],
+                whosThere: ""
+            },
+            "Yudanaka/Nagano": {
+                icon: "🐒",
+                days: "Day 10",
+                hotel: "",
+                hotelUrl: "",
+                activities: [
+                    { text: "Visit Jigokudani Snow Monkey Park", completed: false },
+                    { text: "Relax in onsen hot springs", completed: false }
+                ],
+                otherNotes: "Check weather forecast for appropriate winter clothing",
+                links: [
+                    { title: "", url: "" }
+                ],
+                whosThere: ""
+            },
+            "Tokyo": {
+                icon: "🗼",
+                days: "Days 11-16",
+                hotel: "",
+                hotelUrl: "",
+                activities: [
+                    { text: "Visit Tokyo Skytree", completed: false },
+                    { text: "Explore Shibuya and Harajuku", completed: false },
+                    { text: "Day trip to Hakone or Nikko", completed: false },
+                    { text: "Visit Tsukiji Outer Market", completed: false },
+                    { text: "Thanksgiving dinner somewhere special", completed: false }
+                ],
+                otherNotes: "Lots of options for day trips. Maybe visit Studio Ghibli Museum?",
+                links: [
+                    { title: "", url: "" }
+                ],
+                whosThere: ""
+            }
+        };
+
+        // Initialize application
+        // This init function was moved to the end of the file
+
+        // Initialize map
+        function initMap() {
+            map = L.map('map').setView([35.6895, 139.6917], 6);
+            
+            // Use CartoDB Positron for better English labels
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap contributors, © CARTO',
+                subdomains: 'abcd',
+                maxZoom: 19
+            }).addTo(map);
+            
+            // Auto-fit map to show all trip locations
+            fitMapToTrip();
+        }
+
+        // Fit map to show all trip locations
+        function fitMapToTrip() {
+            const allCoords = itineraryData
+                .filter(day => day.coords && day.coords.length === 2)
+                .map(day => day.coords);
+            
+            if (allCoords.length > 1) {
+                const bounds = L.latLngBounds(allCoords);
+                map.fitBounds(bounds, { 
+                    padding: [30, 30],
+                    maxZoom: 8 
+                });
+            } else if (allCoords.length === 1) {
+                map.setView(allCoords[0], 13);
+            } else {
+                // Default view if no coordinates
+                map.setView([35.6895, 139.6917], 6);
+            }
+        }
+
+        // Dashboard Functions
+        function initDashboard() {
+            if (itineraryData.length === 0) return;
+            
+            // Set current dashboard day to the actual current trip day
+            const currentTripDay = getCurrentTripDay();
+            currentDashboardDay = Math.max(0, currentTripDay - 1); // Convert to 0-based index
+            
+            updateDashboardHeader();
+            initDashboardMap();
+            createVerticalTimeline();
+            createDayList();
+            selectDashboardDay(currentDashboardDay);
+        }
+        
+        function updateDashboardHeader() {
+            document.getElementById('dashboard-title').textContent = tripTitle;
+            
+            if (itineraryData.length > 0) {
+                const startDate = new Date(itineraryData[0].date);
+                const endDate = new Date(itineraryData[itineraryData.length - 1].date);
+                
+                // Fix year if it defaulted to 2000 or other wrong year
+                const currentYear = 2025;
+                if (startDate.getFullYear() < currentYear && (itineraryData[0].date.indexOf(currentYear.toString()) === -1)) {
+                    startDate.setFullYear(currentYear);
+                }
+                if (endDate.getFullYear() < currentYear && (itineraryData[itineraryData.length - 1].date.indexOf(currentYear.toString()) === -1)) {
+                    endDate.setFullYear(currentYear);
+                }
+                
+                const dateRange = `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+                const totalDays = itineraryData.length;
+                
+                document.getElementById('dashboard-dates').textContent = `${dateRange} (${totalDays} days)`;
+            }
+        }
+        
+        function initDashboardMap() {
+            if (dashboardMap) {
+                dashboardMap.remove();
+            }
+            
+            dashboardMap = L.map('dashboard-map').setView([35.6895, 139.6917], 6);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(dashboardMap);
+            
+            // Add markers and paths
+            updateDashboardMap();
+        }
+        
+        function updateDashboardMap() {
+            // Clear existing markers and paths
+            dashboardMarkers.forEach(marker => dashboardMap.removeLayer(marker));
+            dashboardPaths.forEach(path => dashboardMap.removeLayer(path));
+            dashboardMarkers = [];
+            dashboardPaths = [];
+            
+            // Add all location markers but highlight current day
+            itineraryData.forEach((day, index) => {
+                if (day.coords) {
+                    const isCurrentDay = index === currentDashboardDay;
+                    const marker = L.marker(day.coords, {
+                        icon: L.divIcon({
+                            className: isCurrentDay ? 'current-day-marker' : 'day-marker',
+                            html: `<div class="marker-content ${isCurrentDay ? 'current' : ''}">${index + 1}</div>`,
+                            iconSize: [30, 30],
+                            iconAnchor: [15, 15]
+                        })
+                    }).addTo(dashboardMap);
+                    
+                    marker.bindPopup(`<b>Day ${index + 1}</b><br>${day.location}<br>${day.date}`);
+                    dashboardMarkers.push(marker);
+                }
+            });
+            
+            // Center map on current day
+            if (itineraryData[currentDashboardDay] && itineraryData[currentDashboardDay].coords) {
+                dashboardMap.setView(itineraryData[currentDashboardDay].coords, 10);
+            }
+            
+            // Note: Route lines removed for cleaner dashboard view
+            // Just show individual location markers without connecting lines
+        }
+        
+        function createVerticalTimeline() {
+            console.log('Creating vertical timeline...');
+            const timeline = document.getElementById('vertical-timeline');
+            timeline.innerHTML = '';
+            
+            itineraryData.forEach((day, index) => {
+                const timelineDay = document.createElement('div');
+                timelineDay.className = 'timeline-day-custom'; // Use different class name
+                if (index === currentDashboardDay) {
+                    timelineDay.classList.add('active');
+                }
+                timelineDay.onclick = () => selectDashboardDay(index);
+                
+                const dayNumber = index + 1;
+                
+                // Completely override all styling
+                timelineDay.innerHTML = `<span style="
+                    display: block !important;
+                    width: 100% !important;
+                    height: 100% !important;
+                    line-height: 36px !important;
+                    text-align: center !important;
+                    font-size: 14px !important;
+                    font-weight: normal !important;
+                    color: inherit !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                ">${dayNumber}</span>`;
+                
+                // Apply timeline-day styling manually since we changed the class
+                timelineDay.style.cssText = `
+                    width: 40px !important;
+                    height: 40px !important;
+                    border-radius: 50% !important;
+                    display: flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    cursor: pointer !important;
+                    transition: all 0.2s ease !important;
+                    border: 2px solid #ddd !important;
+                    background: white !important;
+                    margin-bottom: 0.5rem !important;
+                    position: relative !important;
+                `;
+                
+                if (index === currentDashboardDay) {
+                    timelineDay.style.background = '#e74c3c !important';
+                    timelineDay.style.color = 'white !important';
+                    timelineDay.style.borderColor = '#c0392b !important';
+                }
+                
+                timelineDay.setAttribute('data-day', dayNumber);
+                timelineDay.title = `Day ${dayNumber}: ${day.location || 'Unknown Location'}`;
+                
+                console.log(`Created timeline day ${dayNumber}`);
+                timeline.appendChild(timelineDay);
+            });
+            
+            console.log('Timeline created with', timeline.children.length, 'elements');
+            
+            // Debug: Log the actual DOM structure
+            setTimeout(() => {
+                const elements = timeline.querySelectorAll('.timeline-day-custom');
+                elements.forEach((el, i) => {
+                    console.log(`Timeline element ${i+1}:`);
+                    console.log(`  - className: "${el.className}"`);
+                    console.log(`  - innerHTML: "${el.innerHTML}"`);
+                    console.log(`  - textContent: "${el.textContent}"`);
+                    console.log(`  - computedStyle display: "${getComputedStyle(el).display}"`);
+                    console.log(`  - computedStyle content: "${getComputedStyle(el, '::before').content}"`);
+                    console.log(`  - data-day: "${el.getAttribute('data-day')}"`);
+                });
+                
+                // Also check if there are any old timeline-day elements
+                const oldElements = timeline.querySelectorAll('.timeline-day');
+                if (oldElements.length > 0) {
+                    console.log(`WARNING: Found ${oldElements.length} old .timeline-day elements still in DOM`);
+                }
+            }, 200);
+            
+            // Monitor for changes to timeline elements
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.target.classList && mutation.target.classList.contains('timeline-day-custom')) {
+                        console.log('TIMELINE ELEMENT CHANGED:', mutation.target, 'Type:', mutation.type);
+                        if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                            console.log('Content was modified. New innerHTML:', mutation.target.innerHTML);
+                            console.log('New textContent:', mutation.target.textContent);
+                        }
+                    }
+                });
+            });
+            
+            // Watch for changes to the timeline container
+            observer.observe(timeline, { 
+                childList: true, 
+                subtree: true, 
+                characterData: true,
+                attributes: true 
+            });
+        }
+        
+        function createDayList() {
+            const dayList = document.getElementById('day-list');
+            dayList.innerHTML = '';
+            
+            itineraryData.forEach((day, index) => {
+                const dayItem = document.createElement('div');
+                dayItem.className = 'day-item';
+                
+                // Create summary from transportation and other info
+                let summary = '';
+                const summaryItems = [];
+                
+                // Add transportation info
+                if (day.transport) {
+                    summaryItems.push(`🚗 ${day.transport}`);
+                }
+                
+                // Add lodging info if available
+                if (day.lodging && day.lodging.trim()) {
+                    summaryItems.push(`🏨 ${day.lodging}`);
+                }
+                
+                // Add notes if available
+                if (day.notes && day.notes.trim()) {
+                    summaryItems.push(`📝 ${day.notes}`);
+                }
+                
+                // Fallback to activities if available
+                if (summaryItems.length === 0 && day.activities && day.activities.length > 0) {
+                    const topActivities = day.activities.slice(0, 2);
+                    summaryItems.push(...topActivities.map(activity => `• ${activity}`));
+                }
+                
+                if (summaryItems.length > 0) {
+                    summary = summaryItems.slice(0, 3).join('<br>');
+                    if (summaryItems.length > 3) {
+                        summary += `<br>• ... and ${summaryItems.length - 3} more`;
+                    }
+                } else {
+                    summary = '• No details available';
+                }
+                
+                dayItem.innerHTML = `
+                    <div class="day-header" onclick="toggleDaySummary(${index})">
+                        <div>
+                            <div class="day-number">${index + 1}</div>
+                            <div class="day-location">${day.location || 'Unknown Location'}</div>
+                        </div>
+                        <div class="day-expand-icon">▼</div>
+                    </div>
+                    <div class="day-summary" id="day-summary-${index}">
+                        <div class="summary-item">${summary}</div>
+                    </div>
+                `;
+                
+                dayList.appendChild(dayItem);
+            });
+        }
+        
+        function selectDashboardDay(dayIndex) {
+            currentDashboardDay = dayIndex;
+            
+            // Update timeline with new class name
+            document.querySelectorAll('.timeline-day-custom').forEach((el, index) => {
+                if (index === dayIndex) {
+                    el.style.background = '#e74c3c !important';
+                    el.style.color = 'white !important';
+                    el.style.borderColor = '#c0392b !important';
+                    el.classList.add('active');
+                } else {
+                    el.style.background = 'white !important';
+                    el.style.color = 'inherit !important';
+                    el.style.borderColor = '#ddd !important';
+                    el.classList.remove('active');
+                }
+            });
+            
+            // Update location indicator
+            const currentDay = itineraryData[dayIndex];
+            if (currentDay) {
+                document.getElementById('location-indicator').textContent = 
+                    `Day ${dayIndex + 1}: ${currentDay.location || 'Unknown Location'}`;
+            }
+            
+            // Update map
+            updateDashboardMap();
+        }
+        
+        function toggleDaySummary(dayIndex) {
+            // Close all other summaries
+            document.querySelectorAll('.day-summary').forEach((el, index) => {
+                if (index !== dayIndex) {
+                    el.classList.remove('show');
+                    el.parentElement.querySelector('.day-header').classList.remove('expanded');
+                }
+            });
+            
+            // Toggle current summary
+            const summary = document.getElementById(`day-summary-${dayIndex}`);
+            const header = summary.parentElement.querySelector('.day-header');
+            
+            summary.classList.toggle('show');
+            header.classList.toggle('expanded');
+        }
+
+        // Switch between views
+        function switchView(viewName) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.view-toggle .btn').forEach(b => {
+                b.classList.remove('active');
+                b.classList.add('btn-secondary');
+                b.classList.remove('btn-primary');
+            });
+            
+            document.getElementById(viewName + '-view').classList.add('active');
+            
+            const activeBtn = event.target;
+            activeBtn.classList.add('active');
+            activeBtn.classList.remove('btn-secondary');
+            activeBtn.classList.add('btn-primary');
+            
+            // Show/hide trip overview in center based on view
+            const tripOverviewHeader = document.getElementById('trip-overview-header');
+            if (viewName === 'dashboard') {
+                tripOverviewHeader.style.display = 'none';
+            } else {
+                tripOverviewHeader.style.display = 'block';
+            }
+            
+            if (viewName === 'map') {
+                setTimeout(() => {
+                    map.invalidateSize();
+                    // Ensure map shows current day when switching to map view
+                    const currentDay = getCurrentTripDay();
+                    updateMapForDay(currentDay);
+                }, 100);
+            } else if (viewName === 'dashboard') {
+                setTimeout(() => {
+                    initDashboard();
+                    if (dashboardMap) dashboardMap.invalidateSize();
+                }, 100);
+            }
+        }
+
+        // Update map for specific day
+        function updateMapForDay(day) {
+            clearMapElements();
+            
+            const currentDay = itineraryData.find(d => d.day == day);
+            if (!currentDay) return;
+            
+            // Update day info
+            document.getElementById('day-info').textContent = 
+                `Day ${currentDay.day}: ${currentDay.title}`;
+            
+            // Add marker for current day
+            if (currentDay.coords) {
+                const marker = L.marker(currentDay.coords)
+                    .addTo(map)
+                    .bindPopup(`<b>Day ${currentDay.day}</b><br>${currentDay.location}`);
+                markers.push(marker);
+                
+                map.setView(currentDay.coords, 13);
+            }
+            
+            // Add path if exists and routes are enabled
+            if (currentDay.path && showRoutes) {
+                const pathColor = getPathColor(currentDay.transport);
+                const pathStyle = getPathStyle(currentDay.transport);
+                const pathCoords = getEnhancedPath(currentDay.path, currentDay.transport);
+                
+                const path = L.polyline(pathCoords, {
+                    color: pathColor,
+                    ...pathStyle
+                }).addTo(map);
+                paths.push(path);
+                
+                // Fit map to show entire path
+                map.fitBounds(currentDay.path);
+            }
+        }
+
+        // Get path color based on transport type
+        function getPathColor(transport) {
+            if (transport.toUpperCase().includes('FLIGHT')) return '#e74c3c';
+            if (transport.toUpperCase().includes('TRAIN')) return '#3498db';
+            return '#95a5a6';
+        }
+
+        // Get path style based on transport type
+        function getPathStyle(transport) {
+            if (transport.toUpperCase().includes('FLIGHT')) {
+                return { dashArray: '10, 10', weight: 3 };
+            }
+            if (transport.toUpperCase().includes('TRAIN')) {
+                return { weight: 4, opacity: 0.8 };
+            }
+            return { weight: 2, opacity: 0.6 };
+        }
+
+        // Create enhanced path with curves for trains
+        function getEnhancedPath(originalPath, transport) {
+            if (!originalPath || originalPath.length < 2) return originalPath;
+            
+            // For flights, use the full path (which should include waypoints)
+            if (transport.toUpperCase().includes('FLIGHT')) {
+                return originalPath;
+            }
+            
+            // For trains, create a curved path that approximates rail routes
+            if (transport.toUpperCase().includes('TRAIN')) {
+                const [start, end] = originalPath;
+                return createTrainRoute(start, end);
+            }
+            
+            return originalPath;
+        }
+
+        // Create realistic train route curves
+        function createTrainRoute(start, end) {
+            const [startLat, startLng] = start;
+            const [endLat, endLng] = end;
+            
+            // Calculate midpoint
+            const midLat = (startLat + endLat) / 2;
+            const midLng = (startLng + endLng) / 2;
+            
+            // Create curve offset based on distance and direction
+            const distance = Math.sqrt(Math.pow(endLat - startLat, 2) + Math.pow(endLng - startLng, 2));
+            const curveOffset = distance * 0.2; // 20% of distance for curve
+            
+            // Determine curve direction based on geographic logic
+            let offsetLat = 0;
+            let offsetLng = 0;
+            
+            // For east-west travel in Japan, curve slightly north (following coastal routes)
+            if (Math.abs(endLng - startLng) > Math.abs(endLat - startLat)) {
+                offsetLat = curveOffset * 0.5;
+            } else {
+                // For north-south travel, curve toward population centers
+                offsetLng = curveOffset * 0.3;
+            }
+            
+            // Create curved path with multiple points
+            const points = [];
+            const segments = 8;
+            
+            for (let i = 0; i <= segments; i++) {
+                const t = i / segments;
+                
+                // Quadratic bezier curve
+                const lat = (1 - t) * (1 - t) * startLat + 
+                           2 * (1 - t) * t * (midLat + offsetLat) + 
+                           t * t * endLat;
+                
+                const lng = (1 - t) * (1 - t) * startLng + 
+                           2 * (1 - t) * t * (midLng + offsetLng) + 
+                           t * t * endLng;
+                
+                points.push([lat, lng]);
+            }
+            
+            return points;
+        }
+
+        // Toggle route visibility
+        function toggleRoutes() {
+            showRoutes = !showRoutes;
+            const button = document.getElementById('toggle-routes');
+            const menuButton = document.getElementById('toggle-routes-menu');
+            const newText = showRoutes ? '🗺️ Hide Routes' : '🗺️ Show Routes';
+            
+            if (button) button.textContent = newText;
+            if (menuButton) menuButton.textContent = newText;
+            
+            // Update current day display
+            const currentDay = document.querySelector('.day-btn.current');
+            const dayNumber = currentDay ? parseInt(currentDay.textContent) : 1;
+            updateMapForDay(dayNumber);
+        }
+
+        // Clear map elements
+        function clearMapElements() {
+            markers.forEach(marker => map.removeLayer(marker));
+            paths.forEach(path => map.removeLayer(path));
+            markers = [];
+            paths = [];
+        }
+
+        // Create day buttons
+        function updateDayButtons() {
+            const container = document.getElementById('day-buttons');
+            container.innerHTML = '';
+            
+            itineraryData.forEach((day, index) => {
+                const button = document.createElement('button');
+                button.className = 'day-btn';
+                button.textContent = day.day;
+                button.onclick = () => selectDay(day.day);
+                
+                if (index === 0) {
+                    button.classList.add('current');
+                }
+                
+                container.appendChild(button);
+            });
+        }
+        
+        // Select a specific day
+        function selectDay(dayNumber) {
+            // Update button states
+            document.querySelectorAll('.day-btn').forEach((btn, index) => {
+                btn.classList.remove('current', 'past');
+                
+                if (index + 1 === dayNumber) {
+                    btn.classList.add('current');
+                } else if (index + 1 < dayNumber) {
+                    btn.classList.add('past');
+                }
+            });
+            
+            // Update map and progress
+            updateMapForDay(dayNumber);
+            updateProgressDisplay(dayNumber);
+        }
+        
+        // Update progress display
+        function updateProgressDisplay(dayNumber) {
+            const totalDays = itineraryData.length;
+            const progress = (dayNumber / totalDays) * 100;
+            const daysRemaining = totalDays - dayNumber;
+            
+            // Check if this is the auto-detected current day
+            const isCurrentDay = (dayNumber === getCurrentTripDay());
+            const currentIndicator = isCurrentDay ? ' (Today)' : '';
+            
+            document.getElementById('progress-text').textContent = `Day ${dayNumber} of ${totalDays}${currentIndicator}`;
+            document.getElementById('progress-fill').style.width = `${progress}%`;
+            document.getElementById('days-remaining').textContent = 
+                daysRemaining === 0 ? 'Trip complete!' : `${daysRemaining} day${daysRemaining === 1 ? '' : 's'} left`;
+        }
+
+        // Render itinerary view
+        function renderItinerary() {
+            const container = document.getElementById('itinerary-content');
+            container.innerHTML = '';
+            
+            itineraryData.forEach(day => {
+                const dayElement = createDayElement(day);
+                container.appendChild(dayElement);
+            });
+        }
+
+        // Create day element
+        function createDayElement(day) {
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'itinerary-day';
+            
+            // Add past/current/future classes
+            const currentDay = getCurrentTripDay();
+            if (day.day < currentDay) {
+                dayDiv.classList.add('past');
+            } else if (day.day === currentDay) {
+                dayDiv.classList.add('current');
+            }
+            
+            dayDiv.innerHTML = `
+                <div class="day-header">
+                    <div class="day-number">${day.day}</div>
+                    <div class="day-date">${day.date}</div>
+                    ${itineraryData.length > 1 ? `<button class="delete-day-btn" onclick="deleteDay(${day.day})" title="Delete Day ${day.day}">×</button>` : ''}
+                    <button class="insert-day-btn" onclick="insertDayAfter(${day.day})" title="Insert day after Day ${day.day}">+</button>
+                </div>
+                <div class="day-details">
+                    <div class="detail-group">
+                        <div class="detail-label">Title</div>
+                        <div class="detail-value" data-field="title">${day.title}</div>
+                    </div>
+                    <div class="detail-group">
+                        <div class="detail-label">Location</div>
+                        <div class="detail-value" data-field="location">${day.location}</div>
+                    </div>
+                    <div class="detail-group coordinates-field" style="display: ${isEditMode ? 'block' : 'none'}">
+                        <div class="detail-label">Coordinates (lat, lng)</div>
+                        <div class="detail-value" data-field="coords">${day.coords && day.coords.length === 2 ? day.coords.join(', ') : ''}</div>
+                    </div>
+                    <div class="detail-group">
+                        <div class="detail-label">Transportation</div>
+                        <div class="detail-value" data-field="transport">${day.transport}</div>
+                    </div>
+                    <div class="detail-group">
+                        <div class="detail-label">Lodging</div>
+                        <div class="detail-value" data-field="lodging">${day.lodging}</div>
+                    </div>
+                    <div class="detail-group">
+                        <div class="detail-label">Notes</div>
+                        <div class="detail-value" data-field="notes">${day.notes}</div>
+                    </div>
+                </div>
+            `;
+            
+            return dayDiv;
+        }
+
+        // Toggle edit mode
+        function toggleEdit() {
+            isEditMode = true;
+            originalData = JSON.parse(JSON.stringify(itineraryData));
+            
+            document.getElementById('edit-btn').style.display = 'none';
+            document.getElementById('save-btn').style.display = 'inline-block';
+            document.getElementById('cancel-btn').style.display = 'inline-block';
+            document.getElementById('add-day-btn').style.display = 'inline-block';
+            
+            // Convert all detail values to input fields
+            document.querySelectorAll('.detail-value').forEach(element => {
+                const field = element.dataset.field;
+                const value = element.textContent;
+                
+                if (field === 'notes') {
+                    element.innerHTML = `<textarea>${value}</textarea>`;
+                } else {
+                    element.innerHTML = `<input type="text" value="${value}">`;
+                }
+            });
+        }
+
+        // Save itinerary changes
+        function saveItinerary() {
+            try {
+                // Update itinerary data from input fields
+                const dayElements = document.querySelectorAll('.itinerary-day');
+                
+                dayElements.forEach((dayElement, index) => {
+                    const day = itineraryData[index];
+                    
+                    dayElement.querySelectorAll('.detail-value').forEach(element => {
+                        const field = element.dataset.field;
+                        const input = element.querySelector('input, textarea');
+                        const value = input.value.trim();
+                        
+                        if (field === 'coords') {
+                            // Parse coordinates from "lat, lng" format
+                            if (value) {
+                                const parts = value.split(',').map(s => parseFloat(s.trim()));
+                                if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                                    day[field] = parts;
+                                } else {
+                                    day[field] = [];
+                                }
+                            } else {
+                                day[field] = [];
+                            }
+                        } else {
+                            day[field] = value;
+                        }
+                    });
+                });
+                
+                // Save to localStorage
+                localStorage.setItem('japanTripData', JSON.stringify(itineraryData));
+                
+                // Sync hotel data from updated itinerary to city details
+                syncHotelData();
+                localStorage.setItem('japanCityDetails', JSON.stringify(cityDetails));
+                
+                // Exit edit mode
+                exitEditMode();
+                
+                // Re-render and update map
+                renderItinerary();
+                renderCityDetails();
+                updateDayButtons();
+                fitMapToTrip(); // Update map bounds for new locations
+                const currentDay = document.querySelector('.day-btn.current');
+                const dayNumber = currentDay ? parseInt(currentDay.textContent) : 1;
+                updateMapForDay(dayNumber);
+                updateProgressDisplay(dayNumber);
+                
+                showMessage('Itinerary saved successfully!');
+            } catch (error) {
+                showMessage('Error saving itinerary: ' + error.message, true);
+            }
+        }
+
+        // Cancel edit mode
+        function cancelEdit() {
+            itineraryData = originalData;
+            exitEditMode();
+            renderItinerary();
+        }
+
+        // Exit edit mode
+        function exitEditMode() {
+            isEditMode = false;
+            document.getElementById('edit-btn').style.display = 'inline-block';
+            document.getElementById('save-btn').style.display = 'none';
+            document.getElementById('cancel-btn').style.display = 'none';
+            document.getElementById('add-day-btn').style.display = 'none';
+        }
+
+        // Add new day
+        function addDay() {
+            const newDay = {
+                day: itineraryData.length + 1,
+                date: "",
+                title: "New Day",
+                location: "",
+                coords: [],
+                transport: "",
+                lodging: "",
+                notes: ""
+            };
+            
+            itineraryData.push(newDay);
+            renderItinerary();
+            updateDayButtons();
+        }
+
+        // Insert a new day after the specified day number
+        function insertDayAfter(afterDayNumber) {
+            const insertIndex = itineraryData.findIndex(day => day.day === afterDayNumber) + 1;
+            const prevDay = itineraryData[insertIndex - 1];
+            const nextDay = itineraryData[insertIndex];
+            
+            // Smart date calculation
+            const newDate = calculateNewDate(prevDay, nextDay);
+            
+            // Copy location/lodging from previous day as starting point
+            const newDay = {
+                day: afterDayNumber + 1,
+                date: newDate,
+                title: "New Day",
+                location: prevDay ? prevDay.location : "",
+                coords: prevDay && prevDay.coords && prevDay.coords.length === 2 ? [...prevDay.coords] : [],
+                transport: "Local transit",
+                lodging: prevDay ? (prevDay.lodging === "Same hotel" || prevDay.lodging.toLowerCase().includes("same") ? prevDay.lodging : "Same hotel") : "",
+                notes: ""
+            };
+            
+            // Insert the new day
+            itineraryData.splice(insertIndex, 0, newDay);
+            
+            // Renumber all subsequent days and shift their dates
+            for (let i = insertIndex + 1; i < itineraryData.length; i++) {
+                itineraryData[i].day = i + 1;
+                
+                // Shift the date by one day
+                if (itineraryData[i].date) {
+                    const currentDate = parseDate(itineraryData[i].date);
+                    if (currentDate) {
+                        currentDate.setDate(currentDate.getDate() + 1);
+                        itineraryData[i].date = formatDate(currentDate);
+                    }
+                }
+            }
+            
+            renderItinerary();
+            renderCityDetails(); // Update city details to reflect new day numbers
+            updateDayButtons();
+            fitMapToTrip(); // Update map bounds
+            updateMapForDay(afterDayNumber + 1); // Show the newly inserted day
+            showMessage(`New day inserted after Day ${afterDayNumber}!`);
+        }
+
+        // Calculate appropriate date for inserted day
+        function calculateNewDate(prevDay, nextDay) {
+            if (!prevDay) return "";
+            
+            // If we have both prev and next days with parseable dates, interpolate
+            if (prevDay.date && nextDay?.date) {
+                const prevDate = parseDate(prevDay.date);
+                const nextDate = parseDate(nextDay.date);
+                
+                if (prevDate && nextDate) {
+                    const newDate = new Date(prevDate);
+                    newDate.setDate(newDate.getDate() + 1);
+                    
+                    if (newDate < nextDate) {
+                        return formatDate(newDate);
+                    }
+                }
+            }
+            
+            // Otherwise, just increment from previous day
+            if (prevDay.date) {
+                const prevDate = parseDate(prevDay.date);
+                if (prevDate) {
+                    const newDate = new Date(prevDate);
+                    newDate.setDate(newDate.getDate() + 1);
+                    return formatDate(newDate);
+                }
+            }
+            
+            return "";
+        }
+
+        // Parse date from various formats
+        function parseDate(dateStr) {
+            // Handle formats like "Fri, Oct 10", "Thu, Nov 14", etc.
+            const patterns = [
+                /\w{3},\s+(\w{3})\s+(\d{1,2})/,  // "Fri, Oct 10"
+                /(\w{3})\s+(\d{1,2})/,           // "Oct 10"
+                /\d{4}-\d{2}-\d{2}/              // "2025-10-10"
+            ];
+            
+            for (const pattern of patterns) {
+                const match = dateStr.match(pattern);
+                if (match) {
+                    if (pattern.source.includes('\\d{4}')) {
+                        // ISO format
+                        return new Date(match[0]);
+                    } else {
+                        // Month name format - get the month and day
+                        let month, day;
+                        if (match.length === 3) {
+                            // "Fri, Oct 10" format
+                            month = match[1];
+                            day = parseInt(match[2]);
+                        } else {
+                            // "Oct 10" format
+                            month = match[1];
+                            day = parseInt(match[2]);
+                        }
+                        
+                        const year = 2025; // Use 2025 for trip dates
+                        const monthIndex = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'].indexOf(month);
+                        if (monthIndex !== -1) {
+                            return new Date(year, monthIndex, day);
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        // Format date to match existing format
+        function formatDate(date) {
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            
+            const dayName = days[date.getDay()];
+            const monthName = months[date.getMonth()];
+            const dayNum = date.getDate();
+            
+            return `${dayName}, ${monthName} ${dayNum}`;
+        }
+
+        // Refresh map to show current locations and zoom
+        function refreshMap() {
+            // Clear coordinates for days that might have outdated coords
+            itineraryData.forEach(day => {
+                if (day.location && (!day.coords || day.coords.length !== 2)) {
+                    day.coords = []; // Clear invalid coords
+                }
+            });
+            
+            fitMapToTrip();
+            const currentDay = document.querySelector('.day-btn.current');
+            const dayNumber = currentDay ? parseInt(currentDay.textContent) : 1;
+            updateMapForDay(dayNumber);
+            showMessage('Map refreshed! Note: Days without coordinates may not show on map.');
+        }
+
+        // Show coordinate lookup helper
+        function showCoordinateLookup() {
+            const cities = {
+                // US East Coast
+                'Boston, MA': '42.3601, -71.0589',
+                'New York, NY': '40.7128, -74.0060',
+                'Newark, NJ': '40.7357, -74.1724',
+                'Jersey City, NJ': '40.7282, -74.0776',
+                'Trenton, NJ': '40.2206, -74.7562',
+                'Atlantic City, NJ': '39.3643, -74.4229',
+                'Philadelphia, PA': '39.9526, -75.1652',
+                'Washington, DC': '38.9072, -77.0369',
+                
+                // US West Coast
+                'Seattle, WA': '47.6062, -122.3321',
+                'San Francisco, CA': '37.7749, -122.4194',
+                'Los Angeles, CA': '34.0522, -118.2437',
+                
+                // Asia
+                'Tokyo, Japan': '35.6762, 139.6503',
+                'Seoul, South Korea': '37.5665, 126.9780',
+                'Osaka, Japan': '34.6937, 135.5023',
+                'Kyoto, Japan': '35.0116, 135.7681',
+                
+                // Europe  
+                'London, UK': '51.5074, -0.1278',
+                'Paris, France': '48.8566, 2.3522',
+                'Rome, Italy': '41.9028, 12.4964'
+            };
+
+            let message = 'Common city coordinates:\n\n';
+            Object.entries(cities).forEach(([city, coords]) => {
+                message += `${city}: ${coords}\n`;
+            });
+            message += '\nFor other cities, search "city name coordinates" online.\nFormat: latitude, longitude (e.g., 40.7357, -74.1724)';
+            
+            alert(message);
+        }
+
+        // Clear all coordinates so map shows only days with valid coords
+        function clearAllCoordinates() {
+            if (confirm('This will clear all coordinate data. The map will only show days where you manually add coordinates. Continue?')) {
+                itineraryData.forEach(day => {
+                    day.coords = [];
+                });
+                
+                fitMapToTrip();
+                const currentDay = document.querySelector('.day-btn.current');
+                const dayNumber = currentDay ? parseInt(currentDay.textContent) : 1;
+                updateMapForDay(dayNumber);
+                showMessage('All coordinates cleared. Add coordinates manually in edit mode to show locations on map.');
+            }
+        }
+
+        // Fix all dates in sequence
+        function fixAllDates() {
+            if (!itineraryData.length) return;
+            
+            // Find the first day with a valid date as our starting point
+            let startDate = null;
+            let startIndex = 0;
+            
+            for (let i = 0; i < itineraryData.length; i++) {
+                const date = parseDate(itineraryData[i].date);
+                if (date) {
+                    startDate = date;
+                    startIndex = i;
+                    break;
+                }
+            }
+            
+            if (!startDate) {
+                showMessage('No valid starting date found to fix from!', true);
+                return;
+            }
+            
+            // Fix dates going forward from the starting point
+            for (let i = startIndex; i < itineraryData.length; i++) {
+                const currentDate = new Date(startDate);
+                currentDate.setDate(startDate.getDate() + (i - startIndex));
+                itineraryData[i].date = formatDate(currentDate);
+            }
+            
+            // Fix dates going backward from the starting point (if any)
+            for (let i = startIndex - 1; i >= 0; i--) {
+                const currentDate = new Date(startDate);
+                currentDate.setDate(startDate.getDate() - (startIndex - i));
+                itineraryData[i].date = formatDate(currentDate);
+            }
+            
+            renderItinerary();
+            showMessage('All dates fixed and sequential!');
+        }
+
+        // Delete a day
+        function deleteDay(dayNumber) {
+            if (itineraryData.length <= 1) {
+                showMessage('Cannot delete the only day!', true);
+                return;
+            }
+            
+            if (confirm(`Are you sure you want to delete Day ${dayNumber}?`)) {
+                const deleteIndex = itineraryData.findIndex(day => day.day === dayNumber);
+                
+                if (deleteIndex !== -1) {
+                    itineraryData.splice(deleteIndex, 1);
+                    
+                    // Renumber all subsequent days and shift their dates back
+                    for (let i = deleteIndex; i < itineraryData.length; i++) {
+                        itineraryData[i].day = i + 1;
+                        
+                        // Shift the date back by one day
+                        if (itineraryData[i].date) {
+                            const currentDate = parseDate(itineraryData[i].date);
+                            if (currentDate) {
+                                currentDate.setDate(currentDate.getDate() - 1);
+                                itineraryData[i].date = formatDate(currentDate);
+                            }
+                        }
+                    }
+                    
+                    renderItinerary();
+                    renderCityDetails(); // Update city details to reflect new day numbers
+                    updateDayButtons();
+                    fitMapToTrip(); // Update map bounds
+                    const newCurrentDay = Math.min(dayNumber, itineraryData.length);
+                    updateMapForDay(newCurrentDay); // Show appropriate day on map
+                    showMessage(`Day ${dayNumber} deleted successfully!`);
+                }
+            }
+        }
+
+        // Upload file
+        function uploadFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data)) {
+                        // Fix transpacific flight paths
+                        itineraryData = fixTranspacificPaths(data);
+                        localStorage.setItem('japanTripData', JSON.stringify(itineraryData));
+                        
+                        // Auto-generate new trip title from the uploaded data
+                        tripTitle = generateAutoTitle();
+                        localStorage.setItem('tripTitle', tripTitle);
+                        
+                        // Auto-generate city details from itinerary
+                        generateCityDetailsFromItinerary();
+                        
+                        renderItinerary();
+                        renderCityDetails();
+                        updateDayButtons();
+                        fitMapToTrip();
+                        updateMapForDay(1);
+                        updateProgressDisplay(1);
+                        selectDay(1);
+                        updateTripOverview();
+                        initDashboard();
+                        showMessage(`New itinerary uploaded as "${tripTitle}"! City details auto-generated.`);
+                    } else {
+                        throw new Error('Invalid file format');
+                    }
+                } catch (error) {
+                    showMessage('Error reading file: ' + error.message, true);
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset file input
+            event.target.value = '';
+        }
+
+        // Fix transpacific flight paths to go the correct direction
+        function fixTranspacificPaths(data) {
+            return data.map(day => {
+                if (day.path && day.transport && day.transport.toUpperCase().includes('FLIGHT')) {
+                    // Check if this is a transpacific flight
+                    const path = day.path;
+                    if (path.length >= 2) {
+                        const [start, end] = [path[0], path[path.length - 1]];
+                        const [startLat, startLng] = start;
+                        const [endLat, endLng] = end;
+                        
+                        // If flying from Americas (negative lng) to Asia (positive lng)
+                        if (startLng < -100 && endLng > 100) {
+                            const fixedEndLng = endLng - 360; // Convert to negative equivalent
+                            day.path = [
+                                [startLat, startLng],
+                                [55, -150], [60, -170], [55, -210],
+                                [endLat, fixedEndLng]
+                            ];
+                        }
+                        // If flying from Asia (positive lng) to Americas (negative lng)
+                        else if (startLng > 100 && endLng < -100) {
+                            const fixedStartLng = startLng - 360; // Convert to negative equivalent
+                            day.path = [
+                                [startLat, fixedStartLng],
+                                [55, -210], [60, -170], [55, -150],
+                                [endLat, endLng]
+                            ];
+                        }
+                    }
+                }
+                return day;
+            });
+        }
+
+        // Upload city details file
+        function uploadCityFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (typeof data === 'object' && !Array.isArray(data)) {
+                        cityDetails = data;
+                        localStorage.setItem('japanCityDetails', JSON.stringify(cityDetails));
+                        renderCityDetails();
+                        showMessage('City details uploaded successfully!');
+                    } else {
+                        throw new Error('Invalid city details format');
+                    }
+                } catch (error) {
+                    showMessage('Error reading city file: ' + error.message, true);
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset file input
+            event.target.value = '';
+        }
+
+        // Generate city details from itinerary data
+        function generateCityDetailsFromItinerary(forceStrategy = null) {
+            const newCityDetails = {};
+            const cityGroups = {};
+            
+            // Decide grouping strategy: by lodging (base city) or by location (daily)
+            let groupingStrategy;
+            if (forceStrategy) {
+                groupingStrategy = forceStrategy;
+            } else if (currentCityGrouping === 'auto') {
+                groupingStrategy = detectGroupingStrategy();
+                currentCityGrouping = groupingStrategy; // Update current setting
+            } else {
+                groupingStrategy = currentCityGrouping;
+            }
+            
+            // For lodging strategy, first resolve all "same hotel" references
+            let lodgingChain = [];
+            if (groupingStrategy === 'lodging') {
+                lodgingChain = resolveLodgingChain();
+            }
+            
+            // Group days by city
+            itineraryData.forEach((day, index) => {
+                let cityName;
+                
+                if (groupingStrategy === 'lodging') {
+                    // Use the resolved lodging chain
+                    cityName = lodgingChain[index];
+                } else {
+                    // Group by daily location
+                    cityName = extractCityFromLocation(day.location);
+                }
+                
+                if (cityName) {
+                    if (!cityGroups[cityName]) {
+                        cityGroups[cityName] = [];
+                    }
+                    cityGroups[cityName].push(day);
+                }
+            });
+            
+            // Create city details for each city
+            Object.keys(cityGroups).forEach(cityName => {
+                const days = cityGroups[cityName];
+                const minDay = Math.min(...days.map(d => d.day));
+                const maxDay = Math.max(...days.map(d => d.day));
+                const dayRange = minDay === maxDay ? `Day ${minDay}` : `Days ${minDay}-${maxDay}`;
+                
+                // Get hotel info from lodging field
+                const hotelInfo = days.find(d => d.lodging && !d.lodging.toLowerCase().includes('same'))?.lodging || '';
+                
+                // Extract activities from titles and notes
+                const activities = [];
+                days.forEach(day => {
+                    if (day.title && day.title !== day.location) {
+                        activities.push({ text: day.title, completed: false });
+                    }
+                    if (day.notes) {
+                        const noteActivities = day.notes.split('.').filter(note => 
+                            note.trim() && 
+                            !note.toLowerCase().includes('drive') && 
+                            !note.toLowerCase().includes('return') &&
+                            note.length > 10
+                        );
+                        noteActivities.forEach(activity => {
+                            activities.push({ text: activity.trim(), completed: false });
+                        });
+                    }
+                });
+                
+                newCityDetails[cityName] = {
+                    icon: getDefaultCityIcon(cityName),
+                    days: dayRange,
+                    hotel: hotelInfo,
+                    hotelUrl: "",
+                    activities: activities.slice(0, 6), // Limit to 6 activities
+                    otherNotes: "",
+                    links: [{ title: "", url: "" }],
+                    whosThere: ""
+                };
+            });
+            
+            cityDetails = newCityDetails;
+            localStorage.setItem('japanCityDetails', JSON.stringify(cityDetails));
+        }
+
+        // Detect best grouping strategy based on itinerary patterns
+        function detectGroupingStrategy() {
+            const lodgingEntries = itineraryData.filter(day => 
+                day.lodging && 
+                day.lodging.trim() && 
+                !day.lodging.toLowerCase().includes('flight')
+            );
+            
+            const sameLodgingCount = itineraryData.filter(day => 
+                day.lodging && day.lodging.toLowerCase().includes('same')
+            ).length;
+            
+            // If lots of "same hotel" entries, probably base city approach
+            if (sameLodgingCount > itineraryData.length * 0.3) {
+                return 'lodging';
+            }
+            
+            // If most days have specific lodging info, use lodging approach
+            if (lodgingEntries.length > itineraryData.length * 0.6) {
+                return 'lodging';
+            }
+            
+            // Otherwise, use daily location approach
+            return 'location';
+        }
+
+        // Extract city name from lodging field
+        function extractCityFromLodging(lodging) {
+            if (!lodging || lodging.toLowerCase().includes('same')) return null;
+            
+            // Look for city names in lodging
+            const cityPatterns = [
+                /in\s+([^,]+)/i,           // "Hotel in Boston"
+                /([^,]+),\s*\w{2}/i,       // "Boston, MA"
+                /([A-Z][a-z]+)/           // First capitalized word
+            ];
+            
+            for (const pattern of cityPatterns) {
+                const match = lodging.match(pattern);
+                if (match) {
+                    return match[1].trim();
+                }
+            }
+            
+            return null;
+        }
+
+        // Extract city name from location field
+        function extractCityFromLocation(location) {
+            if (!location) return null;
+            return location.split(',')[0].split('/')[0].split('→')[0].trim();
+        }
+
+        // Resolve the chain of "same hotel" references to actual lodging cities
+        function resolveLodgingChain() {
+            const chain = [];
+            let currentLodgingCity = null;
+            
+            itineraryData.forEach((day, index) => {
+                if (!day.lodging || day.lodging.trim() === '') {
+                    // No lodging info - use location as fallback
+                    const fallback = extractCityFromLocation(day.location);
+                    chain.push(fallback);
+                    return;
+                }
+                
+                const lodging = day.lodging.toLowerCase();
+                
+                if (lodging.includes('same')) {
+                    // "Same hotel" or "Same NYC hotel" - use current lodging city
+                    if (currentLodgingCity) {
+                        chain.push(currentLodgingCity);
+                    } else {
+                        // Fallback if no previous lodging established
+                        const fallback = extractCityFromLocation(day.location);
+                        chain.push(fallback);
+                    }
+                } else {
+                    // New lodging - extract city and update current
+                    const newLodgingCity = extractLodgingCity(day.lodging);
+                    currentLodgingCity = newLodgingCity || extractCityFromLocation(day.location);
+                    chain.push(currentLodgingCity);
+                }
+            });
+            return chain;
+        }
+
+        // Extract city from lodging with better logic
+        function extractLodgingCity(lodging) {
+            if (!lodging) return null;
+            
+            const originalLodging = lodging.toLowerCase();
+            
+            // First check for recognized city names (most reliable)
+            const recognizedCities = [
+                { keywords: ['dedham', 'westwood'], name: 'Boston area' },
+                { keywords: ['boston'], name: 'Boston area' },
+                { keywords: ['mystic'], name: 'Mystic' },
+                { keywords: ['new york', 'nyc', 'manhattan'], name: 'New York' }
+            ];
+            
+            for (const cityGroup of recognizedCities) {
+                for (const keyword of cityGroup.keywords) {
+                    if (originalLodging.includes(keyword)) {
+                        return cityGroup.name;
+                    }
+                }
+            }
+            
+            // Remove common hotel chain names and generic terms for pattern matching
+            let cleaned = lodging
+                .replace(/hilton|courtyard|marriott|hotel|inn|resort/gi, '')
+                .replace(/\s+or\s+.*$/i, '') // Remove "or Courtyard..." alternatives
+                .trim();
+            
+            // Look for city names in various patterns
+            const cityPatterns = [
+                /(?:in|at)\s+([^,/]+)/i,     // "Hotel in Boston" or "at Boston"
+                /([^,/]+),?\s*[A-Z]{2}/i,    // "Boston, MA"  
+                /^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/  // "New York" or "Boston" at start
+            ];
+            
+            for (const pattern of cityPatterns) {
+                const match = cleaned.match(pattern);
+                if (match && match[1]) {
+                    const city = match[1].trim();
+                    // Filter out generic terms and too-short matches
+                    if (city.length > 2 && !['hotel', 'inn', 'resort', 'same'].includes(city.toLowerCase())) {
+                        return city;
+                    }
+                }
+            }
+            
+            return null;
+        }
+
+        // Get default icon for a city
+        function getDefaultCityIcon(cityName) {
+            const name = cityName.toLowerCase();
+            if (name.includes('tokyo')) return '🗼';
+            if (name.includes('seoul')) return '🏙️';
+            if (name.includes('osaka')) return '🏯';
+            if (name.includes('kyoto')) return '⛩️';
+            if (name.includes('boston') || name.includes('dedham')) return '🏃‍♂️';
+            if (name.includes('new york') || name.includes('nyc')) return '🗽';
+            if (name.includes('mystic')) return '⚓';
+            return '🏙️'; // Default city icon
+        }
+
+        // Download itinerary
+        function downloadItinerary() {
+            const dataStr = JSON.stringify(itineraryData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            // Create filename from trip title, sanitized for filesystem
+            const sanitizedTitle = tripTitle.replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').toLowerCase();
+            const filename = `${sanitizedTitle}-itinerary.json`;
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = filename;
+            link.click();
+            
+            showMessage(`Itinerary downloaded as ${filename}!`);
+        }
+
+        // Download city details
+        function downloadCityDetails() {
+            const dataStr = JSON.stringify(cityDetails, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            // Create filename from trip title, sanitized for filesystem
+            const sanitizedTitle = tripTitle.replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').toLowerCase();
+            const filename = `${sanitizedTitle}-city-details.json`;
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = filename;
+            link.click();
+            
+            showMessage(`City details downloaded as ${filename}!`);
+        }
+
+        // Reset to sample data
+        function resetToSample() {
+            if (confirm('Are you sure you want to reset to the sample itinerary? This will lose any changes.')) {
+                itineraryData = [...sampleData];
+                localStorage.setItem('japanTripData', JSON.stringify(itineraryData));
+                renderItinerary();
+                updateDayButtons();
+                updateMapForDay(1);
+                updateProgressDisplay(1);
+                selectDay(1);
+                initDashboard();
+                showMessage('Reset to sample itinerary!');
+            }
+        }
+
+        // Show status message
+        function showMessage(message, isError = false) {
+            const messageEl = document.getElementById('status-message');
+            messageEl.textContent = message;
+            messageEl.className = 'status-message' + (isError ? ' error' : '');
+            messageEl.classList.add('show');
+            
+            setTimeout(() => {
+                messageEl.classList.remove('show');
+            }, 3000);
+        }
+
+        // City Details Functions
+        function renderCityDetails() {
+            const container = document.getElementById('cities-content');
+            container.innerHTML = '';
+            
+            Object.keys(cityDetails).forEach(cityName => {
+                const cityData = cityDetails[cityName];
+                const cityElement = createCityElement(cityName, cityData);
+                container.appendChild(cityElement);
+            });
+        }
+
+        function createCityElement(cityName, cityData) {
+            const cityDiv = document.createElement('div');
+            cityDiv.className = 'city-section';
+            
+            // Determine if this city is past, current, or future based on trip days
+            const currentTripDay = getCurrentTripDay();
+            const cityStatus = getCityStatus(cityName, currentTripDay);
+            
+            if (cityStatus === 'past') {
+                cityDiv.classList.add('past');
+            } else if (cityStatus === 'current') {
+                cityDiv.classList.add('current');
+            }
+            
+            cityDiv.innerHTML = `
+                <div class="city-header">
+                    <div class="city-icon">${cityData.icon}</div>
+                    <div class="city-title">
+                        <h2 class="city-name">${cityName}</h2>
+                        <p class="city-days">${cityData.days}</p>
+                        <div class="city-hotel">
+                            ${isCityEditMode ? 
+                                `🏨 <input type="text" placeholder="Hotel name" value="${cityData.hotel || ''}" 
+                                          onchange="updateCityField('${cityName}', 'hotel', this.value)">
+                                 🔗 <input type="url" placeholder="Hotel website" value="${cityData.hotelUrl || ''}" 
+                                          onchange="updateCityField('${cityName}', 'hotelUrl', this.value)">` :
+                                (cityData.hotel ? 
+                                    `🏨 ${cityData.hotelUrl ? 
+                                        `<a href="${cityData.hotelUrl}" target="_blank">${cityData.hotel}</a>` : 
+                                        cityData.hotel}` : 
+                                    '')
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="city-content">
+                    <div class="info-section">
+                        <h4>✅ Planned Activities</h4>
+                        <div class="info-content">
+                            <ul class="todo-list" data-field="activities"></ul>
+                            <button class="add-todo" onclick="addActivity('${cityName}')" style="display: ${isCityEditMode ? 'block' : 'inline-block'}">+ Add Activity</button>
+                        </div>
+                    </div>
+                    <div class="info-section">
+                        <h4>📝 Other Notes</h4>
+                        <div class="info-content ${isCityEditMode ? '' : 'display'}" data-field="otherNotes">
+                            ${isCityEditMode ? `<textarea placeholder="Ideas, things to look into, general notes...">${cityData.otherNotes || ''}</textarea>` : (cityData.otherNotes || '')}
+                        </div>
+                    </div>
+                    <div class="info-section links-section">
+                        <h4>🔗 Important Links</h4>
+                        <div class="info-content">
+                            <div class="links-container" data-field="links"></div>
+                            <button class="add-todo" onclick="addLink('${cityName}')" style="display: ${isCityEditMode ? 'block' : 'inline-block'}">+ Add Link</button>
+                        </div>
+                    </div>
+                    <div class="info-section">
+                        <h4>👥 Who's There</h4>
+                        <div class="info-content ${isCityEditMode ? '' : 'display'}" data-field="whosThere">
+                            ${isCityEditMode ? `<textarea placeholder="Group members present for this city/days...">${cityData.whosThere || ''}</textarea>` : (cityData.whosThere || '')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Render activities (now a checklist)
+            renderActivities(cityDiv.querySelector('.todo-list[data-field="activities"]'), cityData.activities || [], cityName);
+            
+            // Render links
+            renderLinks(cityDiv.querySelector('.links-container'), cityData.links, cityName);
+            
+            return cityDiv;
+        }
+
+        function renderTodos(container, todos, cityName) {
+            container.innerHTML = '';
+            todos.forEach((todo, index) => {
+                if (todo.text.trim()) {
+                    const todoElement = document.createElement('li');
+                    todoElement.className = 'todo-item';
+                    todoElement.innerHTML = `
+                        <input type="checkbox" class="todo-checkbox" ${todo.completed ? 'checked' : ''} 
+                               onchange="toggleTodo('${cityName}', ${index})">
+                        <div class="todo-text">
+                            <input type="text" value="${todo.text}" 
+                                   onchange="updateTodoText('${cityName}', ${index}, this.value)"
+                                   ${isCityEditMode ? '' : 'readonly'}>
+                        </div>
+                        <button class="todo-remove" onclick="removeTodo('${cityName}', ${index})" 
+                                style="display: ${isCityEditMode ? 'block' : 'none'}">×</button>
+                    `;
+                    container.appendChild(todoElement);
+                }
+            });
+        }
+
+        function renderLinks(container, links, cityName) {
+            container.innerHTML = '';
+            links.forEach((link, index) => {
+                if (link.title.trim() || link.url.trim()) {
+                    const linkElement = document.createElement('div');
+                    linkElement.className = 'link-item';
+                    if (isCityEditMode) {
+                        linkElement.innerHTML = `
+                            <input type="text" placeholder="Link title" value="${link.title}" 
+                                   onchange="updateLink('${cityName}', ${index}, 'title', this.value)">
+                            <input type="url" placeholder="https://..." value="${link.url}" 
+                                   onchange="updateLink('${cityName}', ${index}, 'url', this.value)">
+                            <button class="todo-remove" onclick="removeLink('${cityName}', ${index})">×</button>
+                        `;
+                    } else if (link.url.trim()) {
+                        linkElement.innerHTML = `
+                            <a href="${link.url}" target="_blank">${link.title || link.url}</a>
+                        `;
+                    }
+                    container.appendChild(linkElement);
+                }
+            });
+        }
+
+        function toggleCityEdit() {
+            isCityEditMode = true;
+            originalCityData = JSON.parse(JSON.stringify(cityDetails));
+            
+            document.getElementById('edit-cities-btn').style.display = 'none';
+            document.getElementById('save-cities-btn').style.display = 'inline-block';
+            document.getElementById('cancel-cities-btn').style.display = 'inline-block';
+            
+            // Re-render in edit mode (this will make text areas editable)
+            renderCityDetails();
+        }
+
+        function saveCityDetails() {
+            try {
+                // Update city details from form fields
+                Object.keys(cityDetails).forEach(cityName => {
+                    const citySection = Array.from(document.querySelectorAll('.city-section'))
+                        .find(section => section.querySelector('.city-name').textContent === cityName);
+                    
+                    if (citySection) {
+                        // Update text fields in content sections
+                        citySection.querySelectorAll('.info-content textarea').forEach(textarea => {
+                            const field = textarea.parentElement.dataset.field;
+                            cityDetails[cityName][field] = textarea.value;
+                        });
+                        
+                        // Update hotel fields from header (they're updated in real-time via updateCityField)
+                        // No additional action needed as they're already saved
+                    }
+                });
+                
+                // Save to localStorage
+                localStorage.setItem('japanCityDetails', JSON.stringify(cityDetails));
+                
+                // Exit edit mode
+                exitCityEditMode();
+                
+                // Re-render
+                renderCityDetails();
+                
+                showMessage('City details saved successfully!');
+            } catch (error) {
+                showMessage('Error saving city details: ' + error.message, true);
+            }
+        }
+
+        function cancelCityEdit() {
+            cityDetails = originalCityData;
+            exitCityEditMode();
+            renderCityDetails();
+        }
+
+        function exitCityEditMode() {
+            isCityEditMode = false;
+            document.getElementById('edit-cities-btn').style.display = 'inline-block';
+            document.getElementById('save-cities-btn').style.display = 'none';
+            document.getElementById('cancel-cities-btn').style.display = 'none';
+        }
+
+        function renderActivities(container, activities, cityName) {
+            container.innerHTML = '';
+            activities.forEach((activity, index) => {
+                if (activity.text && activity.text.trim()) {
+                    const activityElement = document.createElement('li');
+                    activityElement.className = 'todo-item';
+                    activityElement.innerHTML = `
+                        <input type="checkbox" class="todo-checkbox" ${activity.completed ? 'checked' : ''} 
+                               onchange="toggleActivity('${cityName}', ${index})">
+                        <div class="todo-text">
+                            <input type="text" value="${activity.text}" 
+                                   onchange="updateActivityText('${cityName}', ${index}, this.value)"
+                                   ${isCityEditMode ? '' : 'readonly'}>
+                        </div>
+                        <button class="todo-remove" onclick="removeActivity('${cityName}', ${index})" 
+                                style="display: ${isCityEditMode ? 'block' : 'none'}">×</button>
+                    `;
+                    container.appendChild(activityElement);
+                }
+            });
+        }
+
+        function addActivity(cityName) {
+            if (!cityDetails[cityName].activities) {
+                cityDetails[cityName].activities = [];
+            }
+            cityDetails[cityName].activities.push({ text: "New activity", completed: false });
+            if (isCityEditMode) {
+                renderCityDetails();
+            }
+        }
+
+        function removeActivity(cityName, index) {
+            cityDetails[cityName].activities.splice(index, 1);
+            renderCityDetails();
+        }
+
+        function toggleActivity(cityName, index) {
+            cityDetails[cityName].activities[index].completed = !cityDetails[cityName].activities[index].completed;
+            if (!isCityEditMode) {
+                localStorage.setItem('japanCityDetails', JSON.stringify(cityDetails));
+            }
+        }
+
+        function updateActivityText(cityName, index, newText) {
+            cityDetails[cityName].activities[index].text = newText;
+        }
+
+        function addLink(cityName) {
+            cityDetails[cityName].links.push({ title: "", url: "" });
+            if (isCityEditMode) {
+                renderCityDetails();
+            }
+        }
+
+        function removeLink(cityName, index) {
+            cityDetails[cityName].links.splice(index, 1);
+            renderCityDetails();
+        }
+
+        function updateLink(cityName, index, field, value) {
+            cityDetails[cityName].links[index][field] = value;
+        }
+
+        function updateCityField(cityName, field, value) {
+            cityDetails[cityName][field] = value;
+        }
+
+        // Switch city grouping mode
+        function switchCityGrouping(mode) {
+            currentCityGrouping = mode;
+            updateCityGroupingButtons();
+            
+            // Regenerate city details with new grouping
+            generateCityDetailsFromItinerary(mode);
+            renderCityDetails();
+            
+            showMessage(`Switched to ${mode === 'lodging' ? 'Base Cities' : 'Daily Locations'} view`);
+        }
+
+        // Update city grouping button states
+        function updateCityGroupingButtons() {
+            const lodgingBtn = document.getElementById('lodging-view-btn');
+            const locationBtn = document.getElementById('location-view-btn');
+            
+            if (!lodgingBtn || !locationBtn) return; // Buttons might not exist yet
+            
+            // Reset both buttons
+            lodgingBtn.classList.remove('btn-primary');
+            lodgingBtn.classList.add('btn-secondary');
+            locationBtn.classList.remove('btn-primary');
+            locationBtn.classList.add('btn-secondary');
+            
+            // Highlight active button
+            if (currentCityGrouping === 'lodging') {
+                lodgingBtn.classList.remove('btn-secondary');
+                lodgingBtn.classList.add('btn-primary');
+            } else if (currentCityGrouping === 'location') {
+                locationBtn.classList.remove('btn-secondary');
+                locationBtn.classList.add('btn-primary');
+            } else {
+                // Auto mode - highlight the detected strategy
+                const detectedStrategy = detectGroupingStrategy();
+                if (detectedStrategy === 'lodging') {
+                    lodgingBtn.classList.remove('btn-secondary');
+                    lodgingBtn.classList.add('btn-primary');
+                } else {
+                    locationBtn.classList.remove('btn-secondary');
+                    locationBtn.classList.add('btn-primary');
+                }
+            }
+        }
+
+        // Determine if a city is past, current, or future based on itinerary days
+        function getCityStatus(cityName, currentTripDay) {
+            // Find all days that include this city
+            const cityDays = itineraryData.filter(day => {
+                const dayLocation = day.location.toLowerCase();
+                const searchCity = cityName.toLowerCase();
+                return dayLocation.includes(searchCity) || searchCity.includes(dayLocation.split(',')[0].trim());
+            }).map(day => day.day);
+            
+            if (cityDays.length === 0) return 'future'; // Unknown city
+            
+            const minDay = Math.min(...cityDays);
+            const maxDay = Math.max(...cityDays);
+            
+            if (maxDay < currentTripDay) return 'past';      // All days in this city are past
+            if (minDay <= currentTripDay && currentTripDay <= maxDay) return 'current'; // Currently in this city
+            return 'future'; // Haven't reached this city yet
+        }
+
+        // Determine current trip day based on dates (if available)
+        function getCurrentTripDay() {
+            const today = new Date();
+            const todayStr = today.toLocaleDateString('en-US', { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+            
+            // Try to find today's date in the itinerary
+            for (let i = 0; i < itineraryData.length; i++) {
+                const day = itineraryData[i];
+                if (day.date && day.date.includes(todayStr.split(',')[1].trim())) {
+                    return day.day;
+                }
+            }
+            
+            // If we can't find today, check if we're before or after the trip
+            const firstDay = itineraryData[0];
+            const lastDay = itineraryData[itineraryData.length - 1];
+            
+            if (firstDay.date && lastDay.date) {
+                // Simple date comparison - this is approximate
+                const tripStart = new Date(2025, 10, 13); // Nov 13, 2025 (month is 0-indexed)
+                const tripEnd = new Date(2025, 10, 28);   // Nov 28, 2025
+                
+                if (today < tripStart) {
+                    return 1; // Before trip starts
+                } else if (today > tripEnd) {
+                    return itineraryData.length; // After trip ends
+                }
+            }
+            
+            // Default to day 1
+            return 1;
+        }
+
+        // Sync hotel data from itinerary to city details
+        function syncHotelData() {
+            // Extract city names and their lodging info from itinerary
+            const cityLodging = {};
+            
+            itineraryData.forEach(day => {
+                if (day.lodging && day.lodging.trim()) {
+                    // Extract main city name (before any "/" or "," separators)
+                    const cityName = day.location.split('/')[0].split(',')[0].trim();
+                    
+                    // Skip if it's just "Return to X" or similar
+                    if (!day.lodging.toLowerCase().includes('return to')) {
+                        if (!cityLodging[cityName] || day.lodging.length > cityLodging[cityName].length) {
+                            cityLodging[cityName] = day.lodging;
+                        }
+                    }
+                }
+            });
+            
+            // Update city details with lodging info from itinerary
+            Object.keys(cityLodging).forEach(cityName => {
+                // Find matching city in cityDetails (handle case variations)
+                const matchingCityKey = Object.keys(cityDetails).find(key => 
+                    key.toLowerCase().includes(cityName.toLowerCase()) || 
+                    cityName.toLowerCase().includes(key.toLowerCase())
+                );
+                
+                if (matchingCityKey && cityLodging[cityName]) {
+                    // Only update if city details doesn't already have hotel info
+                    if (!cityDetails[matchingCityKey].hotel) {
+                        cityDetails[matchingCityKey].hotel = cityLodging[cityName];
+                    }
+                }
+            });
+        }
+
+        // Initialize app
+        function init() {
+            // Load data from localStorage or use sample data
+            const saved = localStorage.getItem('japanTripData');
+            itineraryData = saved ? JSON.parse(saved) : [...sampleData];
+            
+            // Load city details from localStorage or use sample data
+            const savedCities = localStorage.getItem('japanCityDetails');
+            cityDetails = savedCities ? JSON.parse(savedCities) : { ...sampleCityDetails };
+            
+            // Sync hotel info from itinerary data to city details
+            syncHotelData();
+            
+            initMap();
+            renderItinerary();
+            renderCityDetails();
+            updateCityGroupingButtons();
+            
+            // Try to determine current day, otherwise default to day 1
+            const currentDay = getCurrentTripDay();
+            updateMapForDay(currentDay);
+            updateDayButtons();
+            updateProgressDisplay(currentDay);
+            selectDay(currentDay);
+            
+            updateTripOverview();
+            initDashboard();
+        }
+
+        // Initialize app when page loads
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

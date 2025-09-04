@@ -1,0 +1,173 @@
+[
+ {
+   "day": 1,
+   "date": "Thu, Nov 13",
+   "title": "In Transit (Seattle → Seoul)",
+   "location": "Seattle, USA",
+   "coords": [47.6062, -122.3321],
+   "transport": "FLIGHT: Seattle to Seoul",
+   "lodging": "",
+   "notes": "",
+   "path": [[47.6062, -122.3321], [37.5665, 126.9780]]
+ },
+ {
+   "day": 2,
+   "date": "Fri, Nov 14",
+   "title": "Arrive Seoul",
+   "location": "Seoul, South Korea",
+   "coords": [37.5665, 126.9780],
+   "transport": "Arrive at Incheon International Airport (ICN)",
+   "lodging": "",
+   "notes": "Half day in Seoul"
+ },
+ {
+   "day": 3,
+   "date": "Sat, Nov 15",
+   "title": "Full day in Seoul",
+   "location": "Seoul, South Korea",
+   "coords": [37.5665, 126.9780],
+   "transport": "Local transit",
+   "lodging": "",
+   "notes": "Full day exploring Seoul"
+ },
+ {
+   "day": 4,
+   "date": "Sun, Nov 16",
+   "title": "Fly to Osaka",
+   "location": "Osaka, Japan",
+   "coords": [34.6937, 135.5023],
+   "transport": "FLIGHT: Seoul to Osaka",
+   "lodging": "",
+   "notes": "",
+   "path": [[37.5665, 126.9780], [34.6937, 135.5023]]
+ },
+ {
+   "day": 5,
+   "date": "Mon, Nov 17",
+   "title": "Osaka / Nara",
+   "location": "Osaka / Nara",
+   "coords": [34.6937, 135.5023],
+   "transport": "Local train",
+   "lodging": "",
+   "notes": "Art island day or overnight?"
+ },
+ {
+   "day": 6,
+   "date": "Tue, Nov 18",
+   "title": "Kyoto (day trip)",
+   "location": "Kyoto, Japan",
+   "coords": [35.0116, 135.7681],
+   "transport": "Local train from Osaka",
+   "lodging": "Return to Osaka",
+   "notes": "Day trip to Kyoto",
+   "path": [[34.6937, 135.5023], [35.0116, 135.7681]]
+ },
+ {
+   "day": 7,
+   "date": "Wed, Nov 19",
+   "title": "Explore Osaka",
+   "location": "Osaka, Japan",
+   "coords": [34.6937, 135.5023],
+   "transport": "Local transit",
+   "lodging": "",
+   "notes": ""
+ },
+ {
+   "day": 8,
+   "date": "Thu, Nov 20",
+   "title": "Travel to Kanazawa",
+   "location": "Kanazawa, Japan",
+   "coords": [36.5613, 136.6562],
+   "transport": "TRAIN: Osaka to Kanazawa",
+   "lodging": "",
+   "notes": "",
+   "path": [[34.6937, 135.5023], [36.5613, 136.6562]]
+ },
+ {
+   "day": 9,
+   "date": "Fri, Nov 21",
+   "title": "Explore Kanazawa",
+   "location": "Kanazawa, Japan",
+   "coords": [36.5613, 136.6562],
+   "transport": "Local transit",
+   "lodging": "",
+   "notes": ""
+ },
+ {
+   "day": 10,
+   "date": "Sat, Nov 22",
+   "title": "Travel to Yudanaka (Nagano)",
+   "location": "Yudanaka, Nagano",
+   "coords": [36.7383, 138.4116],
+   "transport": "TRAIN: Kanazawa to Nagano/Yudanaka",
+   "lodging": "",
+   "notes": "Visit snow monkeys.",
+   "path": [[36.5613, 136.6562], [36.7383, 138.4116]]
+ },
+ {
+   "day": 11,
+   "date": "Sun, Nov 23",
+   "title": "Travel to Tokyo",
+   "location": "Tokyo, Japan",
+   "coords": [35.6895, 139.6917],
+   "transport": "TRAIN: Nagano to Tokyo",
+   "lodging": "",
+   "notes": "",
+   "path": [[36.7383, 138.4116], [35.6895, 139.6917]]
+ },
+ {
+   "day": 12,
+   "date": "Mon, Nov 24",
+   "title": "Explore Tokyo",
+   "location": "Tokyo, Japan",
+   "coords": [35.6895, 139.6917],
+   "transport": "Local transit",
+   "lodging": "",
+   "notes": ""
+ },
+ {
+   "day": 13,
+   "date": "Tue, Nov 25",
+   "title": "Explore Tokyo",
+   "location": "Tokyo, Japan",
+   "coords": [35.6895, 139.6917],
+   "transport": "Local transit",
+   "lodging": "",
+   "notes": ""
+ },
+ {
+   "day": 14,
+   "date": "Wed, Nov 26",
+   "title": "Tokyo / Day Trip",
+   "location": "Tokyo, Japan",
+   "coords": [35.6895, 139.6917],
+   "transport": "Local transit",
+   "lodging": "",
+   "notes": "Possible day trip (e.g., to Hakone or Nikko)"
+ },
+ {
+   "day": 15,
+   "date": "Thu, Nov 27",
+   "title": "Tokyo (Thanksgiving)",
+   "location": "Tokyo, Japan",
+   "coords": [35.6895, 139.6917],
+   "transport": "Local transit",
+   "lodging": "",
+   "notes": ""
+ },
+ {
+   "day": 16,
+   "date": "Fri, Nov 28",
+   "title": "Fly Home (Tokyo → Seattle)",
+   "location": "Tokyo, Japan",
+   "coords": [35.6895, 139.6917],
+   "transport": "FLIGHT: Tokyo to Seattle",
+   "lodging": "",
+   "notes": "",
+   "path": [[35.6895, 139.6917], [47.6062, -122.3321]]
+ }
+]
+
+
+
+

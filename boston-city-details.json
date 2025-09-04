@@ -1,0 +1,54 @@
+{
+    "Boston/Dedham": {
+        "icon": "🏃‍♂️",
+        "days": "Days 1-4",
+        "hotel": "Hilton Boston/Dedham or Courtyard Dedham/Westwood",
+        "hotelUrl": "",
+        "activities": [
+            { "text": "Long Distance Championship at Powisset Peak", "completed": false },
+            { "text": "Middle Distance Championship at Rocky Woods", "completed": false },
+            { "text": "Sprint Championship in North End", "completed": false },
+            { "text": "Lobster roll lunch at Neptune Oyster or Pauli's", "completed": false },
+            { "text": "Cannoli from Mike's or Modern Pastry", "completed": false },
+            { "text": "Optional: Boston Common and Public Garden visit", "completed": false }
+        ],
+        "otherNotes": "Rental car for races. Commuter Rail from Route 128 Station for Boston trips. Free parking at hotel.",
+        "links": [
+            { "title": "", "url": "" }
+        ],
+        "whosThere": "Family of 3 (2 adults, 1 daughter)"
+    },
+    "Mystic": {
+        "icon": "⚓",
+        "days": "Day 4-5",
+        "hotel": "",
+        "hotelUrl": "",
+        "activities": [
+            { "text": "Visit Mystic Seaport Museum", "completed": false },
+            { "text": "Visit Mystic Aquarium", "completed": false }
+        ],
+        "otherNotes": "Transition day - brief stop before NYC. About 1.5 hours from Boston area.",
+        "links": [
+            { "title": "", "url": "" }
+        ],
+        "whosThere": "Family of 3"
+    },
+    "New York": {
+        "icon": "🗽",
+        "days": "Days 5-8",
+        "hotel": "",
+        "hotelUrl": "",
+        "activities": [
+            { "text": "Visit museums", "completed": false },
+            { "text": "Explore Central Park", "completed": false },
+            { "text": "See a Broadway show", "completed": false },
+            { "text": "Visit Times Square", "completed": false },
+            { "text": "Explore different neighborhoods", "completed": false }
+        ],
+        "otherNotes": "3 full days for flexible exploration. Take Metro-North from White Plains to Grand Central. Return via JFK/LGA/EWR.",
+        "links": [
+            { "title": "", "url": "" }
+        ],
+        "whosThere": "Family of 3"
+    }
+}

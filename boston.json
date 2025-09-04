@@ -1,0 +1,167 @@
+{
+  "tripName": "Boston & NYC Orienteering Trip",
+  "travelers": "Family of 3 (2 adults, 1 daughter)",
+  "dates": "2025-10-10 to 2025-10-17",
+  "summary": "A trip combining the US National Orienteering Championships in Boston with a 3-day extension in New York City.",
+  "itinerary": [
+    {
+      "day": "Friday, October 10",
+      "theme": "Arrival & Prep",
+      "events": [
+        {
+          "time": "Afternoon",
+          "activity": "Arrive at Boston Logan Airport (BOS)",
+          "notes": "Book an 'Open-Jaw' flight (e.g., SEA -> BOS)."
+        },
+        {
+          "time": "Afternoon",
+          "activity": "Pick up one-way rental car",
+          "notes": "Rental period: Oct 10 (BOS) to Oct 14 (HPN)."
+        },
+        {
+          "time": "Late Afternoon",
+          "activity": "Drive to & Check-in at Hotel",
+          "location": "Dedham/Westwood Area, MA",
+          "details": "Suggested Hotels: Hilton Boston/Dedham, Courtyard Dedham/Westwood. Key features: free parking, proximity to races and Commuter Rail."
+        },
+        {
+          "time": "Evening",
+          "activity": "Relaxed Dinner & Race Prep",
+          "notes": "Dine near the hotel and gather supplies for the weekend."
+        }
+      ]
+    },
+    {
+      "day": "Saturday, October 11",
+      "theme": "Long Distance Championship",
+      "events": [
+        {
+          "time": "Morning",
+          "activity": "Orienteering Nationals: Long Distance",
+          "location": "Powisset Peak, Dover/Westwood, MA",
+          "notes": "Approx. 15-25 minute drive from the hotel."
+        },
+        {
+          "time": "Afternoon",
+          "activity": "Post-Race Exploration or Relaxation",
+          "notes": "Explore the local area or rest at the hotel."
+        },
+        {
+          "time": "Evening",
+          "activity": "Dinner",
+          "location": "Legacy Place (Dedham) or University Station (Westwood)",
+          "notes": "Wide variety of dining options available."
+        }
+      ]
+    },
+    {
+      "day": "Sunday, October 12",
+      "theme": "Middle Distance Championship",
+      "events": [
+        {
+          "time": "Morning",
+          "activity": "Orienteering Nationals: Middle Distance",
+          "location": "Rocky Woods Reservation, Medfield, MA",
+          "notes": "Approx. 20-25 minute drive from the hotel."
+        },
+        {
+          "time": "Afternoon",
+          "activity": "Explore Boston via Commuter Rail",
+          "notes": "Optional trip into the city from Route 128 Station to see Boston Common and Public Garden."
+        },
+        {
+          "time": "Evening",
+          "activity": "Dinner & Pack Up",
+          "notes": "Prepare for checkout and travel the next day."
+        }
+      ]
+    },
+    {
+      "day": "Monday, October 13",
+      "theme": "Sprint Championship & Transition to CT",
+      "events": [
+        {
+          "time": "Morning",
+          "activity": "Travel to Boston for Sprint Race",
+          "notes": "Check out of hotel, leave luggage in car, park at Route 128 Station, and take Commuter Rail to South Station."
+        },
+        {
+          "time": "Late Morning",
+          "activity": "Orienteering Nationals: Sprint",
+          "location": "North End, Boston, MA"
+        },
+        {
+          "time": "Lunch",
+          "activity": "Celebratory Lobster Roll Lunch",
+          "location": "North End, Boston",
+          "details": "Suggestions: Neptune Oyster or Pauli's. Followed by cannoli from Mike's or Modern Pastry."
+        },
+        {
+          "time": "Late Afternoon",
+          "activity": "Return to Car & Depart Boston",
+          "notes": "Take Commuter Rail back to Route 128 Station, then begin drive south."
+        },
+        {
+          "time": "Evening",
+          "activity": "Arrive and Check-in in Connecticut",
+          "location": "Mystic, CT (Suggested)",
+          "notes": "Approx. 1.5-hour drive from Dedham."
+        }
+      ]
+    },
+    {
+      "day": "Tuesday, October 14",
+      "theme": "Explore CT & Arrive in NYC",
+      "events": [
+        {
+          "time": "Morning",
+          "activity": "Explore Mystic",
+          "details": "Visit Mystic Seaport Museum or Mystic Aquarium."
+        },
+        {
+          "time": "Afternoon",
+          "activity": "Drive to Car Rental Drop-off",
+          "location": "Westchester County Airport (HPN), White Plains, NY",
+          "notes": "Approx. 1 hour 45 min drive from Mystic. This avoids NYC traffic."
+        },
+        {
+          "time": "Late Afternoon",
+          "activity": "Travel into Manhattan",
+          "notes": "Take a taxi/Uber from HPN to White Plains station, then Metro-North train to Grand Central Terminal."
+        },
+        {
+          "time": "Evening",
+          "activity": "Arrive & Check-in in NYC",
+          "location": "New York, NY"
+        }
+      ]
+    },
+    {
+      "day": "Wednesday, Oct 15 - Thursday, Oct 16",
+      "theme": "New York City Exploration",
+      "events": [
+        {
+          "time": "All Day",
+          "activity": "Sightseeing in NYC",
+          "notes": "Flexible days to explore museums, parks, shows, etc."
+        }
+      ]
+    },
+    {
+      "day": "Friday, October 17",
+      "theme": "Departure",
+      "events": [
+        {
+          "time": "Morning",
+          "activity": "Final NYC Breakfast or Activity"
+        },
+        {
+          "time": "Afternoon",
+          "activity": "Travel to Airport for Departure",
+          "location": "JFK, LGA, or EWR",
+          "notes": "Book return flight from one of the NYC-area airports."
+        }
+      ]
+    }
+  ]
+}

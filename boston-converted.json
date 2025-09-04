@@ -1,0 +1,86 @@
+[
+    {
+        "day": 1,
+        "date": "Fri, Oct 10",
+        "title": "Arrival & Prep",
+        "location": "Boston/Dedham, MA",
+        "coords": [42.3601, -71.0589],
+        "transport": "FLIGHT: Seattle to Boston",
+        "lodging": "Hilton Boston/Dedham or Courtyard Dedham/Westwood",
+        "notes": "Arrive BOS afternoon, pick up rental car, drive to hotel in Dedham/Westwood area",
+        "path": [[47.6062, -122.3321], [42.3601, -71.0589]]
+    },
+    {
+        "day": 2,
+        "date": "Sat, Oct 11",
+        "title": "Long Distance Championship",
+        "location": "Dover/Westwood, MA",
+        "coords": [42.2439, -71.1878],
+        "transport": "Rental car to race venue",
+        "lodging": "Same hotel",
+        "notes": "Orienteering Nationals: Long Distance at Powisset Peak. Evening dinner at Legacy Place or University Station"
+    },
+    {
+        "day": 3,
+        "date": "Sun, Oct 12",
+        "title": "Middle Distance Championship",
+        "location": "Medfield, MA",
+        "coords": [42.1870, -71.3062],
+        "transport": "Rental car to Rocky Woods Reservation",
+        "lodging": "Same hotel",
+        "notes": "Orienteering Nationals: Middle Distance. Optional afternoon trip to Boston via Commuter Rail"
+    },
+    {
+        "day": 4,
+        "date": "Mon, Oct 13",
+        "title": "Sprint Championship & Travel to CT",
+        "location": "Boston North End → Mystic, CT",
+        "coords": [41.3541, -71.9662],
+        "transport": "Commuter Rail to Boston, then drive to CT",
+        "lodging": "Hotel in Mystic, CT",
+        "notes": "Sprint race in North End, lobster roll lunch, then drive to Connecticut",
+        "path": [[42.3601, -71.0589], [41.3541, -71.9662]]
+    },
+    {
+        "day": 5,
+        "date": "Tue, Oct 14",
+        "title": "Explore CT & Arrive in NYC",
+        "location": "Mystic, CT → New York, NY",
+        "coords": [40.7128, -74.0060],
+        "transport": "Drive to HPN, return rental car, train to Manhattan",
+        "lodging": "NYC Hotel",
+        "notes": "Visit Mystic Seaport or Aquarium, drive to Westchester Airport, Metro-North to Grand Central",
+        "path": [[41.3541, -71.9662], [40.7128, -74.0060]]
+    },
+    {
+        "day": 6,
+        "date": "Wed, Oct 15",
+        "title": "NYC Exploration Day 1",
+        "location": "New York, NY",
+        "coords": [40.7128, -74.0060],
+        "transport": "NYC Subway/Walking",
+        "lodging": "Same NYC hotel",
+        "notes": "Full day exploring NYC - museums, parks, shows, etc."
+    },
+    {
+        "day": 7,
+        "date": "Thu, Oct 16",
+        "title": "NYC Exploration Day 2",
+        "location": "New York, NY",
+        "coords": [40.7128, -74.0060],
+        "transport": "NYC Subway/Walking",
+        "lodging": "Same NYC hotel",
+        "notes": "Second full day exploring NYC - flexible itinerary"
+    },
+    {
+        "day": 8,
+        "date": "Fri, Oct 17",
+        "title": "Departure",
+        "location": "New York, NY",
+        "coords": [40.7128, -74.0060],
+        "transport": "FLIGHT: NYC to Seattle",
+        "lodging": "",
+        "notes": "Final breakfast/activity, travel to JFK/LGA/EWR for departure",
+        "path": [[40.7128, -74.0060], [47.6062, -122.3321]]
+    }
+]
